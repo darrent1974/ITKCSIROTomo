@@ -93,3 +93,55 @@ int itkNegLogCheckedImageFilterTest( int argc, char * argv[] )
 
   return EXIT_SUCCESS;
 }
+
+#ifdef TEMP_REMOVED
+int itkNegLogCheckedImageFilterTest( int argc, char * argv[] )
+{
+  if( argc < 2 )
+    {
+    std::cerr << "Usage: " << argv[0];
+    std::cerr << " outputImage";
+    std::cerr << std::endl;
+    return EXIT_FAILURE;
+    }
+  const char * outputImageFileName  = argv[1];
+
+  const unsigned int Dimension = 2;
+  using PixelType = float;
+  using ImageType = itk::Image< PixelType, Dimension >;
+
+  using FilterType = itk::NegLogCheckedImageFilter< ImageType >;
+  FilterType::Pointer filter = FilterType::New();
+
+  EXERCISE_BASIC_OBJECT_METHODS( filter, NegLogCheckedImageFilter, UnaryFunctorImageFilter );
+
+  // Create input image to avoid test dependencies.
+  ImageType::SizeType size;
+  size.Fill( 128 );
+  ImageType::Pointer image = ImageType::New();
+  image->SetRegions( size );
+  image->Allocate();
+  image->FillBuffer( 1.1f );
+
+  ShowProgress::Pointer showProgress = ShowProgress::New();
+  filter->AddObserver( itk::ProgressEvent(), showProgress );
+  filter->SetInput(image);
+
+  typedef itk::ImageFileWriter< ImageType > WriterType;
+  WriterType::Pointer writer = WriterType::New();
+  writer->SetFileName( outputImageFileName );
+  writer->SetInput( filter->GetOutput() );
+  writer->SetUseCompression(true);
+  try
+    {
+    writer->Update();
+    }
+  catch( itk::ExceptionObject & error )
+    {
+    std::cerr << "Error: " << error << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  return EXIT_SUCCESS;
+}
+#endif
