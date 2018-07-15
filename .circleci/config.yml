@@ -3,7 +3,7 @@ jobs:
   build-and-test:
     working_directory: /ITKRingArtifact-build
     docker:
-      - image: insighttoolkit/module-ci:V4.13
+      - image: insighttoolkit/module-ci:v4.13
     steps:
       - checkout:
           path: /ITKRingArtifact
