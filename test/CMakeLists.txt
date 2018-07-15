@@ -2,6 +2,7 @@ itk_module_test()
 
 set(RingArtifactTests
   itkFourierStripeArtifactImageFilterTest.cxx
+  itkNegLogCheckedImageFilterTest.cxx
   )
 
 CreateTestDriver(RingArtifact "${RingArtifact-Test_LIBRARIES}" "${RingArtifactTests}")
@@ -15,3 +16,6 @@ itk_add_test(NAME itkFourierStripeArtifactImageFilterTest
     DATA{Input/bone-ct-polar.nrrd}
     ${ITK_TEST_OUTPUT_DIR}/itkFourierStripeArtifactImageFilterTest.nrrd
   )
+
+  itk_add_test(NAME itkNegLogCheckedImageFilterTest
+    COMMAND RingArtifactTestDriver itkNegLogCheckedImageFilterTest)
