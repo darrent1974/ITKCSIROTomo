@@ -1,6 +1,6 @@
 branches:
  only:
-  - master
+  - ITKv4
 
 version: "0.0.1.{build}"
 
