@@ -1,14 +1,14 @@
-ITKRingArtifact
+ITKCSIROTomo
 =================================
 
-.. |CircleCI| image:: https://circleci.com/gh/InsightSoftwareConsortium/ITKRingArtifact.svg?style=shield
-    :target: https://circleci.com/gh/InsightSoftwareConsortium/ITKRingArtifact
+.. |CircleCI| image:: https://circleci.com/gh/darrent1974/ITKCSIROTomo.svg?style=shield
+    :target: https://circleci.com/gh/darrent1974/ITKCSIROTomo
 
-.. |TravisCI| image:: https://travis-ci.org/InsightSoftwareConsortium/ITKRingArtifact.svg?branch=master
-    :target: https://travis-ci.org/InsightSoftwareConsortium/ITKRingArtifact
+.. |TravisCI| image:: https://travis-ci.org/InsightSoftwareConsortium/ITKCSIROTomo.svg?branch=master
+    :target: https://travis-ci.org/InsightSoftwareConsortium/ITKCSIROTomo
 
-.. |AppVeyor| image:: https://img.shields.io/appveyor/ci/itkrobot/itkringartifact.svg
-    :target: https://ci.appveyor.com/project/itkrobot/itkringartifact
+.. |AppVeyor| image:: https://img.shields.io/appveyor/ci/darrent1974/itkcsirotomo.svg
+    :target: https://ci.appveyor.com/project/darrent1974/itkcsirotomo
 
 ========== ========== ==========
 Linux      macOS      Windows

@@ -1,12 +1,12 @@
 version: 2
 jobs:
   build-and-test:
-    working_directory: /ITKRingArtifact-build
+    working_directory: /ITKCSIROTomo-build
     docker:
       - image: insighttoolkit/module-ci:v4.13
     steps:
       - checkout:
-          path: /ITKRingArtifact
+          path: /ITKCSIROTomo
       - run:
           name: Fetch CTest driver script
           command: |
@@ -21,8 +21,8 @@ jobs:
             set(CTEST_BUILD_CONFIGURATION "MinSizeRel")
             set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
             set(CTEST_BUILD_FLAGS: "-j5")
-            set(CTEST_SOURCE_DIRECTORY /ITKRingArtifact)
-            set(CTEST_BINARY_DIRECTORY /ITKRingArtifact-build)
+            set(CTEST_SOURCE_DIRECTORY /ITKCSIROTomo)
+            set(CTEST_BINARY_DIRECTORY /ITKCSIROTomo-build)
             set(dashboard_model Experimental)
             set(dashboard_no_clean 1)
             set(dashboard_cache "
@@ -37,7 +37,7 @@ jobs:
           command: |
             ctest -j 2 -VV -S dashboard.cmake
   package:
-    working_directory: ~/ITKRingArtifact
+    working_directory: ~/ITKCSIROTomo
     machine: true
     steps:
       - checkout

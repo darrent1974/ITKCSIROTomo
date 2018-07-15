@@ -1,10 +1,10 @@
 itk_module_test()
 
-set(RingArtifactTests
+set(CSIROTomoTests
   itkNegLogCheckedImageFilterTest.cxx
   )
 
-CreateTestDriver(RingArtifact "${RingArtifact-Test_LIBRARIES}" "${RingArtifactTests}")
+CreateTestDriver(CSIROTomo "${CSIROTomo-Test_LIBRARIES}" "${CSIROTomoTests}")
 
-  itk_add_test(NAME itkNegLogCheckedImageFilterTest
-    COMMAND RingArtifactTestDriver itkNegLogCheckedImageFilterTest)
+itk_add_test(NAME itkNegLogCheckedImageFilterTest
+  COMMAND CSIROTomoTestDriver itkNegLogCheckedImageFilterTest)
