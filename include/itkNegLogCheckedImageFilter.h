@@ -30,7 +30,7 @@ namespace itk
  *
  * \note This class has not yet been implemented
  *
- * \ingroup RingArtifact
+ * \ingroup CSIROTomo
  */
 
 template< typename TImage >
