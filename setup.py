@@ -12,7 +12,7 @@ except ImportError:
     sys.exit(1)
 
 setup(
-    name='itk-ringartifact',
+    name='itk-csirotomo',
     version='0.1.0',
     author='Darren Thompson',
     author_email='darren.thompson@csiro.au',
