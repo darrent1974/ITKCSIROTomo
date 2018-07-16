@@ -30,7 +30,7 @@ namespace itk
  *
  * \note This class has not yet been implemented
  *
- * \ingroup CSIROTomo
+ * \ingroup CSIROTo
  */
 
 template< typename TImage >
