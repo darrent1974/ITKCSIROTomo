@@ -37,7 +37,7 @@ jobs:
           command: |
             ctest -j 2 -VV -S dashboard.cmake
   package:
-    working_directory: ~/ITKRingArtifact
+    working_directory: ~/ITKDummy
     machine: true
     steps:
       - checkout
