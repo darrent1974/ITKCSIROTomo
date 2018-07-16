@@ -6,7 +6,7 @@ jobs:
       - image: insighttoolkit/module-ci:v4.13
     steps:
       - checkout:
-          path: /ITKCCSIROTomo
+          path: /ITKCSIROTomo
       - run:
           name: Fetch CTest driver script
           command: |
