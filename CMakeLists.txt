@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.9)
-project(CSIROTo)
+project(CSIROTomo)
 
 if(NOT ITK_SOURCE_DIR)
   find_package(ITK REQUIRED)

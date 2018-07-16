@@ -5,7 +5,7 @@ ITKCSIROTomo
     :target: https://circleci.com/gh/darrent1974/ITKCSIROTomo
 
 .. |TravisCI| image:: https://travis-ci.org/darrent1974/ITKCSIROTomo.svg?branch=master
-    :target: https://travis-ci.org/InsightSoftwareConsortium/ITKRingArtifact
+    :target: https://travis-ci.org/InsightSoftwareConsortium/ITKCSIROTomo
 
 .. |AppVeyor| image:: https://img.shields.io/appveyor/ci/darrent1974/itkcsirotomo.svg
     :target: https://ci.appveyor.com/project/darrent1974/itkcsirotomo
