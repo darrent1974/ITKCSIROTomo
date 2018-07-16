@@ -3,7 +3,7 @@
 get_filename_component(MY_CURRENT_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 file(READ "${MY_CURRENT_DIR}/README.rst" DOCUMENTATION)
 
-itk_module(Dummy
+itk_module(CSIROTomo
   DEPENDS
     ITKCommon
   TEST_DEPENDS
