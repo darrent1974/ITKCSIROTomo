@@ -1,4 +1,4 @@
-ITKRingArtifact
+ITKCSIROTomo
 =================================
 
 .. |CircleCI| image:: https://circleci.com/gh/darrent1974/ITKRingArtifact.svg?style=shield
