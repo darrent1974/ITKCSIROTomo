@@ -52,7 +52,7 @@ namespace itk
     void StitchingImageFilter< TImage >::GenerateInputRequestedRegion()
     {
         // Get pointer to the input
-        typename TImage::Pointer pInput(  const_cast< typename TImage::Pointer >( this->GetInput() ) );
+        typename TImage::Pointer pInput(  const_cast< typename TImage * >( this->GetInput() ) );
         const RegionType & regionLargestInput( pInput->GetLargestPossibleRegion() );
         pInput->SetRequestedRegion( regionLargestInput );
     }
@@ -91,7 +91,7 @@ namespace itk
         // Iterate through each input
         for( int intInputIdx = 1; intInputIdx < intNumInputs; intInputIdx++ )
         {
-            typename TImage::ConstPointer *pInputN( this->GetInput( intInputIdx ) );
+            typename TImage::ConstPointer pInputN( this->GetInput( intInputIdx ) );
             SizeType sizeInputN( pInputN->GetLargestPossibleRegion().GetSize() );
 
             // Add the difference between the n-th input and the overlap to the output image size
