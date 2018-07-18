@@ -20,20 +20,33 @@
 
 #include "itkThresholdedMedianImageFilter.h"
 
+
+#include "itkConstNeighborhoodIterator.h"
+#include "itkNeighborhoodInnerProduct.h"
+#include "itkImageRegionIterator.h"
+#include "itkNeighborhoodAlgorithm.h"
+#include "itkOffset.h"
+#include "itkProgressReporter.h"
+
+#include <vector>
+#include <algorithm>
+
 namespace itk
 {
     template< typename TInputImage, typename TOutputImage >
     ThresholdedMedianImageFilter< TInputImage, TOutputImage >::ThresholdedMedianImageFilter()
+        : m_ThresholdLower( 0.0 )
+        , m_ThresholdUpper( 1.0 )
     {
 
     }
 
     template< typename TInputImage, typename TOutputImage >
-    void ThresholdedMedianImageFilter< TInputImage, TOutputImage >::ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId)
+    void ThresholdedMedianImageFilter< TInputImage, TOutputImage >::ThreadedGenerateData( const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId )
     {
         // Allocate output
-        typename OutputImageType::Pointer output = this->GetOutput();
-        typename  InputImageType::ConstPointer input  = this->GetInput();
+        typename OutputImageType::Pointer output( this->GetOutput() );
+        typename  InputImageType::ConstPointer input( this->GetInput() );
 
         // Find the data-set boundary "faces"
         NeighborhoodAlgorithm::ImageBoundaryFacesCalculator< InputImageType > bC;
@@ -51,9 +64,9 @@ namespace itk
         std::vector< InputPixelType >                      pixels;
         // Process each of the boundary faces.  These are N-d regions which border
         // the edge of the buffer.
-        for ( typename NeighborhoodAlgorithm::ImageBoundaryFacesCalculator< InputImageType >::FaceListType::iterator
+        for( typename NeighborhoodAlgorithm::ImageBoundaryFacesCalculator< InputImageType >::FaceListType::iterator
               fit = faceList.begin(); fit != faceList.end(); ++fit )
-          {
+        {
           ImageRegionIterator< OutputImageType > it = ImageRegionIterator< OutputImageType >(output, *fit);
 
           ConstNeighborhoodIterator< InputImageType > bit =
@@ -75,7 +88,16 @@ namespace itk
             // get the median value
             const typename std::vector< InputPixelType >::iterator medianIterator = pixels.begin() + medianPosition;
             std::nth_element( pixels.begin(), medianIterator, pixels.end() );
-            it.Set( static_cast< typename OutputImageType::PixelType >( *medianIterator ) );
+
+            // Apply thresholding
+            double dblThresholdedValue( static_cast< double >( *medianIterator ) );
+
+            if( dblThresholdedValue > m_ThresholdUpper )
+                dblThresholdedValue = m_ThresholdUpper;
+            else if( dblThresholdedValue < m_ThresholdLower )
+                dblThresholdedValue = m_ThresholdLower;
+
+            it.Set( static_cast< typename OutputImageType::PixelType >( dblThresholdedValue ) );
 
             ++bit;
             ++it;

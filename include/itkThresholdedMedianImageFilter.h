@@ -83,6 +83,12 @@ public:
   // End concept checking
 #endif
 
+  // thresholds
+  itkSetMacro( ThresholdLower, double );
+  itkGetConstMacro( ThresholdLower, double );
+  itkSetMacro( ThresholdUpper, double );
+  itkGetConstMacro( ThresholdUpper, double );
+
 protected:
     ThresholdedMedianImageFilter();
     virtual ~ThresholdedMedianImageFilter() ITK_OVERRIDE {}
@@ -102,6 +108,9 @@ protected:
 
 private:
     ITK_DISALLOW_COPY_AND_ASSIGN(ThresholdedMedianImageFilter);
+
+    double m_ThresholdLower;
+    double m_ThresholdUpper;
 };
 }
 
