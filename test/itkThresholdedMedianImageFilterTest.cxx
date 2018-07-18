@@ -66,7 +66,7 @@ int itkThresholdedMedianImageFilterTest( int argc, char * argv[] )
     using FilterType = itk::ThresholdedMedianImageFilter< ImageType, ImageType >;
     FilterType::Pointer pFilter( FilterType::New() );
 
-    EXERCISE_BASIC_OBJECT_METHODS( pFilter, ThresholdedMedianImageFilter, MedianImageFilter );
+    EXERCISE_BASIC_OBJECT_METHODS( pFilter, ThresholdedMedianImageFilter, BoxImageFilter );
 
     // Create input image to avoid test dependencies.S
     ImageType::SizeType size;
