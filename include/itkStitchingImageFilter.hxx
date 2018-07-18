@@ -52,7 +52,7 @@ namespace itk
     void StitchingImageFilter< TImage >::GenerateInputRequestedRegion()
     {
         // Get pointer to the input
-        typename TImage::Pointer pInput(  const_cast< typename TImage * >( this->GetInput() ) );
+        typename TImage::Pointer pInput(  const_cast< TImage * >( this->GetInput() ) );
         const RegionType & regionLargestInput( pInput->GetLargestPossibleRegion() );
         pInput->SetRequestedRegion( regionLargestInput );
     }
