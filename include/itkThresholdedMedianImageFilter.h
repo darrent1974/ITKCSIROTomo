@@ -54,7 +54,7 @@ public:
     using ConstPointer = SmartPointer<const Self>;
 #else
     typedef ThresholdedMedianImageFilter                            Self;
-    typedef ImageToImageFilter< InputImageType, OutputImageType >    Superclass;
+    typedef BoxImageFilter< InputImageType, OutputImageType >    Superclass;
     typedef SmartPointer< Self >                                    Pointer;
     typedef SmartPointer< const Self >                              ConstPointer;
 #endif
