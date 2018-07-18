@@ -103,7 +103,7 @@ private:
 }
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkThresholdedMedianImageFilter.hxx"
+#include "itkStitchingImageFilter.hxx"
 #endif
 
 #endif // itkStitchingImageFilter_h
