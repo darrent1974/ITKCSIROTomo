@@ -1,6 +1,6 @@
 /*=========================================================================
  *
- *  Copyright Insight Software Consortium
+ *  Copyright
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,77 +19,76 @@
 #include "itkNegLogCheckedImageFilter.h"
 
 #include "itkCommand.h"
+#include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkTestingMacros.h"
 
-namespace{
-class ShowProgress : public itk::Command
+namespace
 {
-public:
-  itkNewMacro( ShowProgress );
+    class ShowProgress : public itk::Command
+    {
+    public:
+        itkNewMacro( ShowProgress );
 
-  void
-  Execute( itk::Object* caller, const itk::EventObject& event ) override
-  {
-    Execute( (const itk::Object*)caller, event );
-  }
+        void Execute( itk::Object* caller, const itk::EventObject& event ) override
+        {
+            Execute( (const itk::Object*)caller, event );
+        }
 
-  void
-  Execute( const itk::Object* caller, const itk::EventObject& event ) override
-  {
-    if ( !itk::ProgressEvent().CheckEvent( &event ) )
-      {
-      return;
-      }
-    const auto* processObject = dynamic_cast< const itk::ProcessObject* >( caller );
-    if ( !processObject )
-      {
-      return;
-      }
-    std::cout << " " << processObject->GetProgress();
-  }
-};
+        void Execute( const itk::Object* caller, const itk::EventObject& event ) override
+        {
+            if ( !itk::ProgressEvent().CheckEvent( &event ) )
+                return;
+
+            const auto* pProcessObject( dynamic_cast< const itk::ProcessObject* >( caller ) );
+
+            if ( !pProcessObject )
+                return;
+
+            std::cout << " " << pProcessObject->GetProgress();
+        }
+    };
 }
 
 int itkNegLogCheckedImageFilterTest( int argc, char * argv[] )
 {
-  if( argc < 1 )
-  {
-    std::cerr << "Usage: " << argv[0];
-    std::cerr << std::endl;
-    return EXIT_FAILURE;
-  }
+    if( argc < 1 )
+    {
+        std::cerr << "Usage: " << argv[0];
+        std::cerr << std::endl;
+        return EXIT_FAILURE;
+    }
 
-  const unsigned int Dimension = 2;
-  using PixelType = float;
-  using ImageType = itk::Image< PixelType, Dimension >;
+    const unsigned int uintDimension( 2 );
+    using PixelType = float;
+    using ImageType = itk::Image< PixelType, uintDimension >;
 
-  using FilterType = itk::NegLogCheckedImageFilter< ImageType >;
-  FilterType::Pointer filter = FilterType::New();
+    using FilterType = itk::NegLogCheckedImageFilter< ImageType >;
+    FilterType::Pointer pFilter( FilterType::New() );
 
-  EXERCISE_BASIC_OBJECT_METHODS( filter, NegLogCheckedImageFilter, ImageToImageFilter );
+    EXERCISE_BASIC_OBJECT_METHODS( pFilter, NegLogCheckedImageFilter, ImageToImageFilter );
 
-  // Create input image to avoid test dependencies.S
-  ImageType::SizeType size;
-  size.Fill( 128 );
-  ImageType::Pointer image = ImageType::New();
-  image->SetRegions( size );
-  image->Allocate();
-  image->FillBuffer( 0.0f );
+    // Create input image to avoid test dependencies.S
+    ImageType::SizeType size;
+    size.Fill( 128 );
+    ImageType::Pointer pImage( ImageType::New() );
+    pImage->SetRegions( size );
+    pImage->Allocate();
+    pImage->FillBuffer( 0.0f );
 
-  ShowProgress::Pointer showProgress = ShowProgress::New();
-  filter->AddObserver( itk::ProgressEvent(), showProgress );
-  filter->SetInput(image);
+    ShowProgress::Pointer pShowProgress( ShowProgress::New() );
+    pFilter->AddObserver( itk::ProgressEvent(), pShowProgress );
+    pFilter->SetInput( pImage );
 
-  try
-  {
-    filter->Update();
-  }
-  catch( itk::ExceptionObject & error )
-  {
-    std::cerr << "Error: " << error << std::endl;
-    return EXIT_FAILURE;
-  }
+    try
+    {
+        pFilter->Update();
+    }
+    catch( itk::ExceptionObject & error )
+    {
+        std::cerr << "Error: " << error << std::endl;
+        return EXIT_FAILURE;
+    }
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

@@ -6,6 +6,7 @@ file(READ "${MY_CURRENT_DIR}/README.rst" DOCUMENTATION)
 itk_module(ITKCSIROTomo
   DEPENDS
     ITKCommon
+	ITKSmoothing
   TEST_DEPENDS
     ITKTestKernel
   DESCRIPTION
