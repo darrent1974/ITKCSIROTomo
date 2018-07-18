@@ -56,14 +56,11 @@ public:
     itkTypeMacro(StitchingImageFilter, ImageToImageFilter);
 
     /** Image related typedefs. */
-    typedef typename TImage::Pointer    ImagePointer;
-    typedef const typename TImage::Pointer    ImageConstPointer;
     typedef typename TImage::RegionType RegionType;
     typedef typename TImage::SizeType   SizeType;
     typedef typename TImage::IndexType  IndexType;
     typedef typename TImage::PixelType  PixelType;
     typedef typename TImage::PointType  PointType;
-    typedef typename NumericTraits< PixelType >::RealType RealType;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
     itkConceptMacro( FloatingPointPixel, ( itk::Concept::IsFloatingPoint< typename TImage::PixelType > ) );

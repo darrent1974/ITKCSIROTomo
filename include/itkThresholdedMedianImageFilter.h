@@ -18,7 +18,8 @@
 #ifndef itkThresholdedMedianImageFilter_h
 #define itkThresholdedMedianImageFilter_h
 
-#include "itkMedianImageFilter.h"
+#include "itkBoxImageFilter.h"
+#include "itkImage.h"
 
 namespace itk
 {
@@ -33,7 +34,7 @@ namespace itk
  */
 
 template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT ThresholdedMedianImageFilter : public MedianImageFilter< TInputImage, TOutputImage >
+class ITK_TEMPLATE_EXPORT ThresholdedMedianImageFilter : public BoxImageFilter< TInputImage, TOutputImage >
 {
 public:
     /** Extract dimension from input and output image. */
@@ -52,15 +53,15 @@ public:
     using Pointer = SmartPointer<Self>;
     using ConstPointer = SmartPointer<const Self>;
 #else
-    typedef ThresholdedMedianImageFilter                        Self;
-    typedef MedianImageFilter< InputImageType, OutputImageType > Superclass;
-    typedef SmartPointer< Self >                                  Pointer;
-    typedef SmartPointer< const Self >                            ConstPointer;
+    typedef ThresholdedMedianImageFilter                            Self;
+    typedef ImageToImageFilter< InputImageType, OutputImageType >    Superclass;
+    typedef SmartPointer< Self >                                    Pointer;
+    typedef SmartPointer< const Self >                              ConstPointer;
 #endif
 
 
     itkNewMacro(Self);
-    itkTypeMacro(ThresholdedMedianImageFilter, MedianImageFilter);
+    itkTypeMacro(ThresholdedMedianImageFilter, BoxImageFilter);
 
     /** Image related typedefs. */
     typedef typename InputImageType::PixelType  InputPixelType;
@@ -72,7 +73,14 @@ public:
     typedef typename InputImageType::SizeType InputSizeType;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
-    //itkConceptMacro( FloatingPointPixel, ( itk::Concept::IsFloatingPoint< typename InputImageType::PixelType > ) );
+  // Begin concept checking
+  itkConceptMacro( SameDimensionCheck,
+                   ( Concept::SameDimension< InputImageDimension, OutputImageDimension > ) );
+  itkConceptMacro( InputConvertibleToOutputCheck,
+                   ( Concept::Convertible< InputPixelType, OutputPixelType > ) );
+  itkConceptMacro( InputLessThanComparableCheck,
+                   ( Concept::LessThanComparable< InputPixelType > ) );
+  // End concept checking
 #endif
 
 protected:

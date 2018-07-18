@@ -11,7 +11,7 @@ CreateTestDriver(CSIROTomo "${CSIROTomo-Test_LIBRARIES}" "${CSIROTomoTests}")
 itk_add_test(NAME itkNegLogCheckedImageFilterTest
 	COMMAND CSIROTomoTestDriver itkNegLogCheckedImageFilterTest)
 
-itk_add_test(NAME ReplaceFeatureMapNanInfImageFilterInstantiationTest
+itk_add_test(NAME itkStitchingImageFilterTest
   COMMAND CSIROTomoTestDriver
   itkStitchingImageFilterTest
   DATA{Input/StitchImage1.mhd}
