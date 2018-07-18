@@ -37,10 +37,10 @@ namespace itk
     template< typename TImage >
     void StitchingImageFilter< TImage >::GenerateData()
     {
-        TImage *pOutput( this->GetOutput() );
+        typename TImage::Pointer pOutput( this->GetOutput() );
 
         // Create the actual output image
-        TImage::Pointer pOutputStitched( TImage::New() );
+        typename TImage::Pointer pOutputStitched( TImage::New() );
         pOutputStitched->SetRegions( pOutput->GetLargestPossibleRegion() );
         pOutputStitched->Allocate( true );
         pOutputStitched->FillBuffer( 100.0 );
@@ -52,7 +52,7 @@ namespace itk
     void StitchingImageFilter< TImage >::GenerateInputRequestedRegion()
     {
         // Get pointer to the input
-        TImage *pInput(  const_cast< TImage * >( this->GetInput() ) );
+        typename TImage::Pointer pInput(  const_cast< typename TImage::Pointer >( this->GetInput() ) );
         const RegionType & regionLargestInput( pInput->GetLargestPossibleRegion() );
         pInput->SetRequestedRegion( regionLargestInput );
     }
@@ -62,8 +62,8 @@ namespace itk
     {
         Superclass::GenerateOutputInformation();
 
-        const TImage *pInput( this->GetInput() );
-        TImage *pOutput( this->GetOutput() );
+        typename TImage::ConstPointer pInput( this->GetInput() );
+        typename TImage::Pointer pOutput( this->GetOutput() );
 
         if( !pInput || !pOutput )
           return;
@@ -91,7 +91,7 @@ namespace itk
         // Iterate through each input
         for( int intInputIdx = 1; intInputIdx < intNumInputs; intInputIdx++ )
         {
-            const TImage *pInputN( this->GetInput( intInputIdx ) );
+            typename TImage::ConstPointer *pInputN( this->GetInput( intInputIdx ) );
             SizeType sizeInputN( pInputN->GetLargestPossibleRegion().GetSize() );
 
             // Add the difference between the n-th input and the overlap to the output image size
