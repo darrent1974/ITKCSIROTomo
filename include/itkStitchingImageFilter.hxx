@@ -37,10 +37,10 @@ namespace itk
     template< typename TImage >
     void StitchingImageFilter< TImage >::GenerateData()
     {
-        ImagePointer pOutput( this->GetOutput() );
+        TImage *pOutput( this->GetOutput() );
 
         // Create the actual output image
-        ImagePointer pOutputStitched( TImage::New() );
+        TImage::Pointer pOutputStitched( TImage::New() );
         pOutputStitched->SetRegions( pOutput->GetLargestPossibleRegion() );
         pOutputStitched->Allocate( true );
         pOutputStitched->FillBuffer( 100.0 );
@@ -52,7 +52,7 @@ namespace itk
     void StitchingImageFilter< TImage >::GenerateInputRequestedRegion()
     {
         // Get pointer to the input
-        ImagePointer pInput(  const_cast< TImage * >( this->GetInput() ) );
+        TImage *pInput(  const_cast< TImage * >( this->GetInput() ) );
         const RegionType & regionLargestInput( pInput->GetLargestPossibleRegion() );
         pInput->SetRequestedRegion( regionLargestInput );
     }
