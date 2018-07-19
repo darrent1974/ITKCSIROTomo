@@ -9,9 +9,9 @@ itk_module(ITKCSIROTomo
 	ITKSmoothing
 	ITKSpatialObjects
 	ITKIOImageBase
+	ITKTransform
   TEST_DEPENDS
     ITKTestKernel
-	ITKTransform
   DESCRIPTION
     "${DOCUMENTATION}"
   EXCLUDE_FROM_DEFAULT

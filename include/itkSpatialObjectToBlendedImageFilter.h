@@ -65,9 +65,9 @@ public:
     typedef typename InputSpatialObjectType::ConstPointer  InputSpatialObjectConstPointer;
     typedef typename TInputSpatialObject::ChildrenListType ChildrenListType;
 
-	/** ImageDimension constants */
-	itkStaticConstMacro( ObjectDimension, unsigned int,	InputSpatialObjectType::ObjectDimension);
-	itkStaticConstMacro( OutputImageDimension, unsigned int, TOutputImage::ImageDimension);
+    /** ImageDimension constants */
+    itkStaticConstMacro( ObjectDimension, unsigned int,	InputSpatialObjectType::ObjectDimension);
+    itkStaticConstMacro( OutputImageDimension, unsigned int, TOutputImage::ImageDimension);
 protected:
     SpatialObjectToBlendedImageFilter();
     ~SpatialObjectToBlendedImageFilter() ITK_OVERRIDE {}

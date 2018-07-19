@@ -27,20 +27,20 @@ namespace itk
 {
 template< typename TInputSpatialObject, typename TOutputImage >
 SpatialObjectToBlendedImageFilter< TInputSpatialObject, TOutputImage >::SpatialObjectToBlendedImageFilter()
-	: SpatialObjectToImageFilter< TInputSpatialObject, TOutputImage >()
+    : SpatialObjectToImageFilter< TInputSpatialObject, TOutputImage >()
 {
 }
 
 template< typename TInputSpatialObject, typename TOutputImage >
 void SpatialObjectToBlendedImageFilter< TInputSpatialObject, TOutputImage >::GenerateData( void )
 {
-	itkDebugMacro(<< "SpatialObjectToBlendedImageFilter::Update() called");
+    itkDebugMacro(<< "SpatialObjectToBlendedImageFilter::Update() called");
 
-	// Get the input and output pointers
+    // Get the input and output pointers
     const InputSpatialObjectType *pInputSpatialObject( this->GetInput() );
-    OutputImagePointer            pOutput( this->GetOutput() );
+    OutputImagePointer pOutput( this->GetOutput() );
 
-	// Generate the image
+    // Generate the image
     SizeType sizeOutput;
 
     pInputSpatialObject->ComputeBoundingBox();
@@ -50,14 +50,14 @@ void SpatialObjectToBlendedImageFilter< TInputSpatialObject, TOutputImage >::Gen
         sizeOutput[i] = static_cast<SizeValueType>( pInputSpatialObject->GetBoundingBox()->GetMaximum()[i] - pInputSpatialObject->GetBoundingBox()->GetMinimum()[i] );
     }
 
-	typename OutputImageType::IndexType index;
-	index.Fill(0);
-	typename OutputImageType::RegionType region;
+    typename OutputImageType::IndexType index;
+    index.Fill(0);
+    typename OutputImageType::RegionType region;
 
-	// If the size of the output has been explicitly specified, the filter
-	// will set the output size to the explicit size, otherwise the size from the
-	// spatial
-	// object's bounding box will be used as default.
+    // If the size of the output has been explicitly specified, the filter
+    // will set the output size to the explicit size, otherwise the size from the
+    // spatial
+    // object's bounding box will be used as default.
     bool bSpecifiedSize( false );
     for( unsigned int i = 0; i < OutputImageDimension; i++ )
 		if ( Superclass::m_Size[i] != 0 )
