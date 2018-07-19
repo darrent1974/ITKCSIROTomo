@@ -37,18 +37,18 @@ class ITK_TEMPLATE_EXPORT SpatialObjectToBlendedImageFilter : public SpatialObje
 {
 public:
     /** Standard class typedefs. */
-    typedef SpatialObjectToBlendedImageFilter   Self;
+    typedef SpatialObjectToBlendedImageFilter                               Self;
     typedef SpatialObjectToImageFilter< TInputSpatialObject, TOutputImage > Superclass;
-    typedef SmartPointer< Self >    Pointer;
-    typedef SmartPointer< const Self > ConstPointer;
+    typedef SmartPointer< Self >                                            Pointer;
+    typedef SmartPointer< const Self >                                      ConstPointer;
 
-    typedef TOutputImage                            OutputImageType;
-    typedef typename OutputImageType::SizeType      SizeType;
-    typedef typename OutputImageType::PointType     PointType;
-    typedef typename OutputImageType::Pointer       OutputImagePointer;
-    typedef typename OutputImageType::ValueType     ValueType;
-    typedef typename OutputImageType::SpacingType   SpacingType;
-    typedef typename OutputImageType::DirectionType DirectionType;
+    typedef TOutputImage                                                    OutputImageType;
+    typedef typename OutputImageType::SizeType                              SizeType;
+    typedef typename OutputImageType::PointType                             PointType;
+    typedef typename OutputImageType::Pointer                               OutputImagePointer;
+    typedef typename OutputImageType::ValueType                             ValueType;
+    typedef typename OutputImageType::SpacingType                           SpacingType;
+    typedef typename OutputImageType::DirectionType                         DirectionType;
 
     /** Method for creation through the object factory. */
     itkNewMacro(Self);
@@ -57,13 +57,13 @@ public:
     itkTypeMacro(SpatialObjectToBlendedImageFilter, SpatialObjectToImageFilter);
 
     /** Superclass typedefs. */
-    typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
+    typedef typename Superclass::OutputImageRegionType                      OutputImageRegionType;
 
     /** Some convenient typedefs. */
-    typedef TInputSpatialObject                            InputSpatialObjectType;
-    typedef typename InputSpatialObjectType::Pointer       InputSpatialObjectPointer;
-    typedef typename InputSpatialObjectType::ConstPointer  InputSpatialObjectConstPointer;
-    typedef typename TInputSpatialObject::ChildrenListType ChildrenListType;
+    typedef TInputSpatialObject                                             InputSpatialObjectType;
+    typedef typename InputSpatialObjectType::Pointer                        InputSpatialObjectPointer;
+    typedef typename InputSpatialObjectType::ConstPointer                   InputSpatialObjectConstPointer;
+    typedef typename TInputSpatialObject::ChildrenListType                  ChildrenListType;
 
     /** ImageDimension constants */
     itkStaticConstMacro( ObjectDimension, unsigned int,	InputSpatialObjectType::ObjectDimension);
