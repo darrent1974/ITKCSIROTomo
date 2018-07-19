@@ -16,6 +16,7 @@
  *
  *=========================================================================*/
 
+#include "itkGroupSpatialObject.h"
 #include "itkImageSpatialObject.h"
 #include "itkSpatialObjectToBlendedImageFilter.h"
 
@@ -63,12 +64,15 @@ int itkSpatialObjectToBlendedImageFilterTest( int argc, char * argv[] )
     const unsigned int uintDimension( 2 );
     using PixelType = float;
     using ImageType = itk::Image< PixelType, uintDimension >;
+    using GroupSpatialObjectType = itk::GroupSpatialObject< uintDimension >;
     using ImageSpatialObjectType = itk::ImageSpatialObject< uintDimension, PixelType >;
 
 
     using FilterType = itk::SpatialObjectToBlendedImageFilter< ImageSpatialObjectType, ImageType >;
     FilterType::Pointer pFilter( FilterType::New() );
     EXERCISE_BASIC_OBJECT_METHODS( pFilter, SpatialObjectToBlendedImageFilter, SpatialObjectToImageFilter );
+
+    GroupSpatialObjectType::Pointer pGroupSpatialObject( GroupSpatialObjectType::New() );
 
 #ifdef TEMP_REMOVED
     // Create input image to avoid test dependencies
