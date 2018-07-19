@@ -106,7 +106,7 @@ private:
     ITK_DISALLOW_COPY_AND_ASSIGN(StitchingImageFilter);
 
     SpacingType                                     m_Shift;
-    typename GroupSpatialObjectType::Pointer        pGroupImageSpatialObjects;
+    typename GroupSpatialObjectType::Pointer        m_GroupImageSpatialObjectss;
 };
 }
 
