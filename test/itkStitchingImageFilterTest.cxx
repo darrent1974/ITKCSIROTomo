@@ -80,29 +80,41 @@ int itkStitchingImageFilterTest( int argc, char * argv[] )
     ImageType::Pointer pImage2( pReader->GetOutput() );
 #endif
 
-    // Create input image to avoid test dependencies.S
+    ImageType::SpacingType spacingImage;
+    spacingImage.Fill( 0.1 );
+
+    // Create input image to avoid test dependencies.
     ImageType::SizeType size;
-    size.Fill( 128 );
+    size.Fill( 120 );
     ImageType::Pointer pImage1( ImageType::New() );
     pImage1->SetRegions( size );
+    pImage1->SetSpacing( spacingImage );
     pImage1->Allocate();
-    pImage1->FillBuffer( 1.0f );
+    pImage1->FillBuffer( 0.1f );
 
     ImageType::Pointer pImage2( ImageType::New() );
     pImage2->SetRegions( size );
+    pImage2->SetSpacing( spacingImage );
     pImage2->Allocate();
-    pImage2->FillBuffer( 2.0f );
+    pImage2->FillBuffer( 0.2f );
 
-    FilterType::PointType pointOverlap;
-    pointOverlap[0] = 128.0;
-    pointOverlap[1] = 64.0;
-    pointOverlap[2] = 128.0;
+    ImageType::Pointer pImage3( ImageType::New() );
+    pImage3->SetRegions( size );
+    pImage3->SetSpacing( spacingImage );
+    pImage3->Allocate();
+    pImage3->FillBuffer( 0.3f );
+
+    FilterType::SpacingType spacingShift;
+    spacingShift[0] = 0.0;
+    spacingShift[1] = 4.0;
+    spacingShift[2] = 0.0;
 
     ShowProgress::Pointer pShowProgress( ShowProgress::New() );
     pFilter->AddObserver( itk::ProgressEvent(), pShowProgress );
     pFilter->SetInput( 0, pImage1 );
     pFilter->SetInput( 1, pImage2 );
-    pFilter->SetOverlap( pointOverlap );
+    pFilter->SetInput( 2, pImage3 );
+    pFilter->SetShift( spacingShift );
 
     try
     {

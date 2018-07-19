@@ -22,6 +22,10 @@
 #include "itkNumericTraits.h"
 #include "itkProgressReporter.h"
 
+#include "itkGroupSpatialObject.h"
+#include "itkImageSpatialObject.h"
+#include "itkSpatialObjectTreeContainer.h"
+
 namespace itk
 {
 /** \class StitchingImageFilter
@@ -61,14 +65,18 @@ public:
     typedef typename TImage::IndexType  IndexType;
     typedef typename TImage::PixelType  PixelType;
     typedef typename TImage::PointType  PointType;
+    typedef typename TImage::SpacingType SpacingType;
+
+    typedef GroupSpatialObject< ImageDimension > GroupSpatialObjectType;
+    typedef ImageSpatialObject< ImageDimension, PixelType > ImageSpatialObjectType;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
     itkConceptMacro( FloatingPointPixel, ( itk::Concept::IsFloatingPoint< typename TImage::PixelType > ) );
 #endif
 
     // overlap in physical coordinates
-    itkSetMacro( Overlap, PointType );
-    itkGetConstMacro( Overlap, PointType );
+    itkSetMacro( Shift, SpacingType );
+    itkGetConstMacro( Shift, SpacingType );
 
 protected:
     StitchingImageFilter();
@@ -97,8 +105,8 @@ protected:
 private:
     ITK_DISALLOW_COPY_AND_ASSIGN(StitchingImageFilter);
 
-    PointType m_Overlap;
-
+    SpacingType m_Shift;
+    typename GroupSpatialObjectType::Pointer m_pGroupImageSpatialObjects;
 };
 }
 

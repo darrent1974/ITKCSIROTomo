@@ -20,12 +20,15 @@
 
 #include "itkStitchingImageFilter.h"
 
+#include "itkSpatialObjectToBlendedImageFilter.h"
+
 namespace itk
 {
     template< typename TImage >
     StitchingImageFilter< TImage >::StitchingImageFilter()
     {
-
+        // Create group to store image spatial objects
+        m_pGroupImageSpatialObjects = GroupSpatialObjectType::New();
     }
 
     template< typename TImage >
@@ -37,15 +40,35 @@ namespace itk
     template< typename TImage >
     void StitchingImageFilter< TImage >::GenerateData()
     {
+        // Get a reference to the current output image
         typename TImage::Pointer pOutput( this->GetOutput() );
+        typename TImage::ConstPointer pInput( this->GetInput() );
 
-        // Create the actual output image
-        typename TImage::Pointer pOutputStitched( TImage::New() );
-        pOutputStitched->SetRegions( pOutput->GetLargestPossibleRegion() );
-        pOutputStitched->Allocate( true );
-        pOutputStitched->FillBuffer( 100.0 );
+        if( !pInput || !pOutput )
+          return;
 
-        this->GetOutput()->Graft( pOutputStitched );
+        if( this->GetNumberOfInputs() == 1 )
+        {
+            // If there is only one input, graft a copy of the input to the output
+            typename TImage::Pointer pInputCopy( TImage::New() );
+            pInputCopy->Graft( const_cast< TImage * >( this->GetInput() ) );
+
+            this->GraftOutput( pInputCopy );
+
+            return;
+        }
+
+        RegionType regionOutput( pOutput->GetLargestPossibleRegion() );
+
+        typedef SpatialObjectToBlendedImageFilter< GroupSpatialObjectType, TImage> SpatialObjectToBlendedImageFilterType;
+        typename SpatialObjectToBlendedImageFilterType::Pointer pSpatialObjectToBlendedImage( SpatialObjectToBlendedImageFilterType::New() );
+
+        pSpatialObjectToBlendedImage->SetInput( m_pGroupImageSpatialObjects );
+        pSpatialObjectToBlendedImage->SetSize( regionOutput.GetSize() );
+        pSpatialObjectToBlendedImage->SetSpacing( pInput->GetSpacing() );
+        pSpatialObjectToBlendedImage->Update();
+
+        this->GraftOutput( pSpatialObjectToBlendedImage->GetOutput() );
     }
 
     template< typename TImage >
@@ -74,29 +97,52 @@ namespace itk
             // Nothing to do if there is only one input
             return;
 
-        // Calculate the size of the overlap in pixels
-
+        // Initialise output region
         RegionType regionOutput( pInput->GetLargestPossibleRegion() );
 
-        // Set size of first input
+        // Initialize output size to be updated
         SizeType sizeOutput( regionOutput.GetSize() );
 
-        IndexType indexOverlapPixels;
-        pOutput->TransformPhysicalPointToIndex( this->GetOverlap(), indexOverlapPixels );
-        SizeType sizeOverlapPixels;
+        // Set the spacing on the spatial object group based on the spacing of
+        // the first image (assuming spacing is consistant over all images)
+        typename GroupSpatialObjectType::VectorType vectorSpacing( pInput->GetSpacing() );
+        m_pGroupImageSpatialObjects->SetSpacing( &vectorSpacing[0] );
 
-        for( unsigned int j = 0; j < ImageDimension; j++ )
-            sizeOverlapPixels[j] = indexOverlapPixels[j];
+        typename ImageSpatialObjectType::VectorType vectorShift;
+        vectorShift.Fill( 0 );
 
         // Iterate through each input
-        for( int intInputIdx = 1; intInputIdx < intNumInputs; intInputIdx++ )
+        for( int intInputIdx = 0; intInputIdx < intNumInputs; intInputIdx++ )
         {
             typename TImage::ConstPointer pInputN( this->GetInput( intInputIdx ) );
-            SizeType sizeInputN( pInputN->GetLargestPossibleRegion().GetSize() );
 
-            // Add the difference between the n-th input and the overlap to the output image size
-            sizeOutput += ( sizeInputN - sizeOverlapPixels );
+            // Create new spatial object
+            typename ImageSpatialObjectType::Pointer pImageSpatialObject( ImageSpatialObjectType::New() );
+
+            pImageSpatialObject->SetImage( pInputN );
+
+            // Shift the image relative to the group
+            pImageSpatialObject->GetObjectToParentTransform()->SetOffset( vectorShift );
+            pImageSpatialObject->ComputeObjectToWorldTransform();
+
+            // Add it to the group
+            m_pGroupImageSpatialObjects->AddSpatialObject( pImageSpatialObject );
+
+            // Increment the shift for the next image
+            vectorShift += m_Shift;
         }
+
+        // Compute the bounding-box of all image objects
+        m_pGroupImageSpatialObjects->ComputeBoundingBox();
+
+        typename GroupSpatialObjectType::BoundingBoxType::Pointer pBoundingBox( m_pGroupImageSpatialObjects->GetBoundingBox() );
+        typename GroupSpatialObjectType::BoundingBoxType::BoundsArrayType bounds( pBoundingBox->GetBounds() );
+
+        std::cout << "bounds: " << pBoundingBox->GetBounds() << std::endl;
+
+        // Compute the size of the "stitched" image based on the bounding box of all spatial objects
+        for( unsigned int j = 0, k = 0; j < ImageDimension; j++, k += 2 )
+            sizeOutput[j] = static_cast<unsigned int>( ceil( ( bounds[k+1] - bounds[k] ) / vectorSpacing[j] ) );
 
         // Update the size for the output region
         regionOutput.SetSize( sizeOutput );
