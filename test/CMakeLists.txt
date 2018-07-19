@@ -2,9 +2,9 @@ itk_module_test()
 
 set(CSIROTomoTests
   itkNegLogCheckedImageFilterTest.cxx
-  itkStitchingImageFilterTest.cxx
   itkThresholdedMedianImageFilterTest.cxx
-  )
+  itkStitchingImageFilterTest.cxx
+  itkSpatialObjectToBlendedImageFilterTest.cxx)
 
 CreateTestDriver(CSIROTomo "${CSIROTomo-Test_LIBRARIES}" "${CSIROTomoTests}")
 
@@ -23,5 +23,5 @@ itk_add_test(NAME itkStitchingImageFilterTest
 itk_add_test(NAME itkThresholdedMedianImageFilterTest
 	COMMAND CSIROTomoTestDriver itkThresholdedMedianImageFilterTest)
 
-#itk_add_test(NAME itkSpatialObjectToBlendedImageFilterTest
-#	COMMAND CSIROTomoTestDriver itkSpatialObjectToBlendedImageFilterTest)
+itk_add_test(NAME itkSpatialObjectToBlendedImageFilterTest
+	COMMAND CSIROTomoTestDriver itkSpatialObjectToBlendedImageFilterTest)
