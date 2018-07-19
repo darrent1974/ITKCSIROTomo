@@ -99,9 +99,11 @@ int itkStitchingImageFilterTest( int argc, char * argv[] )
     pImage3->Allocate();
     pImage3->FillBuffer( 0.3f );
 
-#ifdef TEMP_REMOVED
+
     using FilterType = itk::StitchingImageFilter< ImageType >;
     FilterType::Pointer pFilter( FilterType::New() );
+
+#ifdef TEMP_REMOVED
 
     FilterType::SpacingType spacingShift;
     spacingShift[0] = 0.0;
