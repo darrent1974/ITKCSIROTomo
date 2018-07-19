@@ -24,7 +24,6 @@
 #include "itkMath.h"
 #include "itkNumericTraits.h"
 
-
 namespace itk
 {
     namespace Functor

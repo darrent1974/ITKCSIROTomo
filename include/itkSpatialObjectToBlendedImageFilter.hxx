@@ -25,7 +25,6 @@
 
 namespace itk
 {
-
 template< typename TInputSpatialObject, typename TOutputImage >
 SpatialObjectToBlendedImageFilter< TInputSpatialObject, TOutputImage >::SpatialObjectToBlendedImageFilter()
 	: SpatialObjectToImageFilter< TInputSpatialObject, TOutputImage >()

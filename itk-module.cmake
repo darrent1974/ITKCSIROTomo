@@ -11,6 +11,7 @@ itk_module(ITKCSIROTomo
 	ITKIOImageBase
   TEST_DEPENDS
     ITKTestKernel
+	ITKTransform
   DESCRIPTION
     "${DOCUMENTATION}"
   EXCLUDE_FROM_DEFAULT
