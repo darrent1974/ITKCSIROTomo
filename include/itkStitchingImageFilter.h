@@ -25,6 +25,7 @@
 #include "itkGroupSpatialObject.h"
 #include "itkImageSpatialObject.h"
 #include "itkSpatialObjectTreeContainer.h"
+#include "itkSpatialObjectToBlendedImageFilter.h"
 
 namespace itk
 {
@@ -70,6 +71,8 @@ public:
     typedef GroupSpatialObject< ImageDimension >                GroupSpatialObjectType;
     typedef ImageSpatialObject< ImageDimension, PixelType >     ImageSpatialObjectType;
 
+    typedef SpatialObjectToBlendedImageFilter< GroupSpatialObjectType, TImage>  SpatialObjectToBlendedImageFilterType;
+
 #ifdef ITK_USE_CONCEPT_CHECKING
     itkConceptMacro( FloatingPointPixel, ( itk::Concept::IsFloatingPoint< typename TImage::PixelType > ) );
 #endif
@@ -80,7 +83,7 @@ public:
 
 protected:
     StitchingImageFilter();
-    virtual ~StitchingImageFilter() {}
+    virtual ~StitchingImageFilter() ITK_OVERRIDE {}
 
     void PrintSelf( std::ostream& os, Indent indent ) const ITK_OVERRIDE;
     virtual void GenerateData() ITK_OVERRIDE;

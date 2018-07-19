@@ -60,7 +60,7 @@ public:
 
 protected:
     NegLogCheckedImageFilter();
-    virtual ~NegLogCheckedImageFilter() {}
+    virtual ~NegLogCheckedImageFilter() ITK_OVERRIDE {}
 
     void PrintSelf( std::ostream& os, Indent indent ) const ITK_OVERRIDE;
     virtual void GenerateData() ITK_OVERRIDE;

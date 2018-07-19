@@ -20,8 +20,6 @@
 
 #include "itkStitchingImageFilter.h"
 
-#include "itkSpatialObjectToBlendedImageFilter.h"
-
 namespace itk
 {
     template< typename TImage >
@@ -60,7 +58,6 @@ namespace itk
 
         RegionType regionOutput( pOutput->GetLargestPossibleRegion() );
 
-        typedef SpatialObjectToBlendedImageFilter< GroupSpatialObjectType, TImage> SpatialObjectToBlendedImageFilterType;
         typename SpatialObjectToBlendedImageFilterType::Pointer pSpatialObjectToBlendedImage( SpatialObjectToBlendedImageFilterType::New() );
 
         pSpatialObjectToBlendedImage->SetInput( m_GroupImageSpatialObjectss );

@@ -36,6 +36,10 @@ namespace itk
     class ITK_TEMPLATE_EXPORT SpatialObjectToBlendedImageFilter : public SpatialObjectToImageFilter< TInputSpatialObject, TOutputImage >
     {
     public:
+
+        itkStaticConstMacro(ObjectDimension, unsigned int, TInputSpatialObject::ObjectDimension);
+        itkStaticConstMacro(OutputImageDimension, unsigned int, TOutputImage::ImageDimension);
+
         /** Standard class typedefs. */
         typedef SpatialObjectToBlendedImageFilter                               Self;
         typedef SpatialObjectToImageFilter< TInputSpatialObject, TOutputImage > Superclass;
@@ -64,12 +68,9 @@ namespace itk
         typedef typename InputSpatialObjectType::Pointer                        InputSpatialObjectPointer;
         typedef typename InputSpatialObjectType::ConstPointer                   InputSpatialObjectConstPointer;
         typedef typename TInputSpatialObject::ChildrenListType                  ChildrenListType;
-
-        itkStaticConstMacro(ObjectDimension, unsigned int,	InputSpatialObjectType::ObjectDimension);
-        itkStaticConstMacro(OutputImageDimension, unsigned int, TOutputImage::ImageDimension);
     protected:
         SpatialObjectToBlendedImageFilter();
-        ~SpatialObjectToBlendedImageFilter() ITK_OVERRIDE {}
+        virtual ~SpatialObjectToBlendedImageFilter() ITK_OVERRIDE {}
 
         virtual void GenerateData() ITK_OVERRIDE;
 

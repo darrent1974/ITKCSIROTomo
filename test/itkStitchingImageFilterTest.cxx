@@ -66,7 +66,7 @@ int itkStitchingImageFilterTest( int argc, char * argv[] )
     using FilterType = itk::StitchingImageFilter< ImageType >;
     FilterType::Pointer pFilter( FilterType::New() );
 
-    EXERCISE_BASIC_OBJECT_METHODS( pFilter, StitchingImageFilter, ImageToImageFilter );
+    //EXERCISE_BASIC_OBJECT_METHODS( pFilter, StitchingImageFilter, ImageToImageFilter );
 
 #ifdef TEMP_REMOVED
     typedef itk::ImageFileReader< ImageType > ReaderType;
