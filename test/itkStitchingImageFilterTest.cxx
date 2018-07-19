@@ -63,11 +63,6 @@ int itkStitchingImageFilterTest( int argc, char * argv[] )
     using PixelType = float;
     using ImageType = itk::Image< PixelType, uintDimension >;
 
-    using FilterType = itk::StitchingImageFilter< ImageType >;
-    FilterType::Pointer pFilter( FilterType::New() );
-
-    //EXERCISE_BASIC_OBJECT_METHODS( pFilter, StitchingImageFilter, ImageToImageFilter );
-
 #ifdef TEMP_REMOVED
     typedef itk::ImageFileReader< ImageType > ReaderType;
     ReaderType::Pointer pReader( ReaderType::New() );
@@ -104,10 +99,16 @@ int itkStitchingImageFilterTest( int argc, char * argv[] )
     pImage3->Allocate();
     pImage3->FillBuffer( 0.3f );
 
+#ifdef TEMP_REMOVED
+    using FilterType = itk::StitchingImageFilter< ImageType >;
+    FilterType::Pointer pFilter( FilterType::New() );
+
     FilterType::SpacingType spacingShift;
     spacingShift[0] = 0.0;
     spacingShift[1] = 4.0;
     spacingShift[2] = 0.0;
+
+    //EXERCISE_BASIC_OBJECT_METHODS( pFilter, StitchingImageFilter, ImageToImageFilter );
 
     ShowProgress::Pointer pShowProgress( ShowProgress::New() );
     pFilter->AddObserver( itk::ProgressEvent(), pShowProgress );
@@ -132,6 +133,7 @@ int itkStitchingImageFilterTest( int argc, char * argv[] )
         std::cerr << "Error: " << error << std::endl;
         return EXIT_FAILURE;
     }
+#endif
 
     return EXIT_SUCCESS;
 }
