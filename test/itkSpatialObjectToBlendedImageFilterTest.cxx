@@ -65,6 +65,7 @@ int itkSpatialObjectToBlendedImageFilterTest( int argc, char * argv[] )
     using ImageType = itk::Image< PixelType, uintDimension >;
     using ImageSpatialObjectType = itk::ImageSpatialObject< uintDimension, PixelType >;
 
+#ifdef TEMP_REMOVED
     using FilterType = itk::SpatialObjectToBlendedImageFilter< ImageSpatialObjectType, ImageType >;
     FilterType::Pointer pFilter( FilterType::New() );
 
@@ -97,6 +98,7 @@ int itkSpatialObjectToBlendedImageFilterTest( int argc, char * argv[] )
         std::cerr << "Error: " << error << std::endl;
         return EXIT_FAILURE;
     }
+#endif
 
     return EXIT_SUCCESS;
 }
