@@ -48,10 +48,10 @@ public:
     using Pointer = SmartPointer<Self>;
     using ConstPointer = SmartPointer<const Self>;
 #else
-    typedef StitchingImageFilter                        Self;
-    typedef ImageToImageFilter< TImage, TImage >        Superclass;
-    typedef SmartPointer< Self >                        Pointer;
-    typedef SmartPointer< const Self >                  ConstPointer;
+    typedef StitchingImageFilter                                Self;
+    typedef ImageToImageFilter< TImage, TImage >                Superclass;
+    typedef SmartPointer< Self >                                Pointer;
+    typedef SmartPointer< const Self >                          ConstPointer;
 #endif
 
     itkStaticConstMacro( ImageDimension, unsigned int, TImage::ImageDimension );
@@ -60,15 +60,15 @@ public:
     itkTypeMacro(StitchingImageFilter, ImageToImageFilter);
 
     /** Image related typedefs. */
-    typedef typename TImage::RegionType RegionType;
-    typedef typename TImage::SizeType   SizeType;
-    typedef typename TImage::IndexType  IndexType;
-    typedef typename TImage::PixelType  PixelType;
-    typedef typename TImage::PointType  PointType;
-    typedef typename TImage::SpacingType SpacingType;
+    typedef typename TImage::RegionType                         RegionType;
+    typedef typename TImage::SizeType                           SizeType;
+    typedef typename TImage::IndexType                          IndexType;
+    typedef typename TImage::PixelType                          PixelType;
+    typedef typename TImage::PointType                          PointType;
+    typedef typename TImage::SpacingType                        SpacingType;
 
-    typedef GroupSpatialObject< ImageDimension > GroupSpatialObjectType;
-    typedef ImageSpatialObject< ImageDimension, PixelType > ImageSpatialObjectType;
+    typedef GroupSpatialObject< ImageDimension >                GroupSpatialObjectType;
+    typedef ImageSpatialObject< ImageDimension, PixelType >     ImageSpatialObjectType;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
     itkConceptMacro( FloatingPointPixel, ( itk::Concept::IsFloatingPoint< typename TImage::PixelType > ) );

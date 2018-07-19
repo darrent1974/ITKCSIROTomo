@@ -53,20 +53,20 @@ namespace
 
 int itkSpatialObjectToBlendedImageFilterTest( int argc, char * argv[] )
 {
-	if( argc < 1 )
-	{
-		std::cerr << "Usage: " << argv[0];
-		std::cerr << std::endl;
-		return EXIT_FAILURE;
-	}
+    if( argc < 1 )
+    {
+        std::cerr << "Usage: " << argv[0];
+        std::cerr << std::endl;
+        return EXIT_FAILURE;
+    }
 
-	const unsigned int uintDimension( 2 );
-	using PixelType = float;
-	using ImageType = itk::Image< PixelType, uintDimension >;
-	using ImageSpatialObjectType = itk::ImageSpatialObject< uintDimension, PixelType >;
+    const unsigned int uintDimension( 2 );
+    using PixelType = float;
+    using ImageType = itk::Image< PixelType, uintDimension >;
+    using ImageSpatialObjectType = itk::ImageSpatialObject< uintDimension, PixelType >;
 
-	using FilterType = itk::SpatialObjectToBlendedImageFilter< ImageSpatialObjectType, ImageType >;
-	FilterType::Pointer pFilter( FilterType::New() );
+    using FilterType = itk::SpatialObjectToBlendedImageFilter< ImageSpatialObjectType, ImageType >;
+    FilterType::Pointer pFilter( FilterType::New() );
 
 #ifdef TEMP_REMOVED
 
@@ -101,5 +101,5 @@ int itkSpatialObjectToBlendedImageFilterTest( int argc, char * argv[] )
 	}
 #endif
 
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

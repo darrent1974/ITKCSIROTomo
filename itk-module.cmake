@@ -11,6 +11,7 @@ itk_module(ITKCSIROTomo
 	ITKSpatialObjects
 	ITKIOImageBase
   TEST_DEPENDS
+	ITKTransform
     ITKTestKernel
   DESCRIPTION
     "${DOCUMENTATION}"
