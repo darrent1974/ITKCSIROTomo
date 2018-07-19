@@ -7,9 +7,9 @@ itk_module(ITKCSIROTomo
   DEPENDS
     ITKCommon
 	ITKSmoothing
+	ITKTransform
 	ITKSpatialObjects
 	ITKIOImageBase
-	ITKTransform
   TEST_DEPENDS
     ITKTestKernel
   DESCRIPTION
