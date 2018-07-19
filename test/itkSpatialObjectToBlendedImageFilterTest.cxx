@@ -16,8 +16,8 @@
  *
  *=========================================================================*/
 
-#include "itkSpatialObjectToBlendedImageFilter.h"
 #include "itkImageSpatialObject.h"
+#include "itkSpatialObjectToBlendedImageFilter.h"
 
 #include "itkCommand.h"
 #include "itkImageFileReader.h"
