@@ -70,7 +70,6 @@ public:
 
     typedef GroupSpatialObject< ImageDimension >                GroupSpatialObjectType;
     typedef ImageSpatialObject< ImageDimension, PixelType >     ImageSpatialObjectType;
-
     typedef SpatialObjectToBlendedImageFilter< GroupSpatialObjectType, TImage>  SpatialObjectToBlendedImageFilterType;
 
 #ifdef ITK_USE_CONCEPT_CHECKING

@@ -19,13 +19,12 @@
 #define itkStitchingImageFilter_hxx
 
 #include "itkStitchingImageFilter.h"
-#include "itkTransform.h"
 
 namespace itk
 {
     template< typename TImage >
     StitchingImageFilter< TImage >::StitchingImageFilter()
-    {
+    {       
         // Create group to store image spatial objects
         m_GroupImageSpatialObjectss = GroupSpatialObjectType::New();
     }

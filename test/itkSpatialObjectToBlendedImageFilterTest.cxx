@@ -65,10 +65,10 @@ int itkSpatialObjectToBlendedImageFilterTest( int argc, char * argv[] )
     using ImageType = itk::Image< PixelType, uintDimension >;
     using ImageSpatialObjectType = itk::ImageSpatialObject< uintDimension, PixelType >;
 
-#ifdef TEMP_REMOVED
+
     using FilterType = itk::SpatialObjectToBlendedImageFilter< ImageSpatialObjectType, ImageType >;
     FilterType::Pointer pFilter( FilterType::New() );
-
+#ifdef TEMP_REMOVED
     EXERCISE_BASIC_OBJECT_METHODS( pFilter, SpatialObjectToBlendedImageFilter, SpatialObjectToImageFilter );
 
     // Create input image to avoid test dependencies

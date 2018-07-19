@@ -76,7 +76,7 @@ int itkStitchingImageFilterTest( int argc, char * argv[] )
 #endif
 
     ImageType::SpacingType spacingImage;
-    spacingImage.Fill( 0.1 );
+    spacingImage.Fill( 0.1f );
 
     // Create input image to avoid test dependencies.
     ImageType::SizeType size;
