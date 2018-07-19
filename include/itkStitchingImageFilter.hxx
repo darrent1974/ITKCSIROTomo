@@ -28,7 +28,7 @@ namespace itk
     StitchingImageFilter< TImage >::StitchingImageFilter()
     {
         // Create group to store image spatial objects
-        m_pGroupImageSpatialObjects = GroupSpatialObjectType::New();
+        pGroupImageSpatialObjects = GroupSpatialObjectType::New();
     }
 
     template< typename TImage >
@@ -63,7 +63,7 @@ namespace itk
         typedef SpatialObjectToBlendedImageFilter< GroupSpatialObjectType, TImage> SpatialObjectToBlendedImageFilterType;
         typename SpatialObjectToBlendedImageFilterType::Pointer pSpatialObjectToBlendedImage( SpatialObjectToBlendedImageFilterType::New() );
 
-        pSpatialObjectToBlendedImage->SetInput( m_pGroupImageSpatialObjects );
+        pSpatialObjectToBlendedImage->SetInput( pGroupImageSpatialObjects );
         pSpatialObjectToBlendedImage->SetSize( regionOutput.GetSize() );
         pSpatialObjectToBlendedImage->SetSpacing( pInput->GetSpacing() );
         pSpatialObjectToBlendedImage->Update();
@@ -106,7 +106,7 @@ namespace itk
         // Set the spacing on the spatial object group based on the spacing of
         // the first image (assuming spacing is consistant over all images)
         typename GroupSpatialObjectType::VectorType vectorSpacing( pInput->GetSpacing() );
-        m_pGroupImageSpatialObjects->SetSpacing( &vectorSpacing[0] );
+        pGroupImageSpatialObjects->SetSpacing( &vectorSpacing[0] );
 
         typename ImageSpatialObjectType::VectorType vectorShift;
         vectorShift.Fill( 0 );
@@ -126,16 +126,16 @@ namespace itk
             pImageSpatialObject->ComputeObjectToWorldTransform();
 
             // Add it to the group
-            m_pGroupImageSpatialObjects->AddSpatialObject( pImageSpatialObject );
+            pGroupImageSpatialObjects->AddSpatialObject( pImageSpatialObject );
 
             // Increment the shift for the next image
             vectorShift += m_Shift;
         }
 
         // Compute the bounding-box of all image objects
-        m_pGroupImageSpatialObjects->ComputeBoundingBox();
+        pGroupImageSpatialObjects->ComputeBoundingBox();
 
-        typename GroupSpatialObjectType::BoundingBoxType::Pointer pBoundingBox( m_pGroupImageSpatialObjects->GetBoundingBox() );
+        typename GroupSpatialObjectType::BoundingBoxType::Pointer pBoundingBox( pGroupImageSpatialObjects->GetBoundingBox() );
         typename GroupSpatialObjectType::BoundingBoxType::BoundsArrayType bounds( pBoundingBox->GetBounds() );
 
         std::cout << "bounds: " << pBoundingBox->GetBounds() << std::endl;
