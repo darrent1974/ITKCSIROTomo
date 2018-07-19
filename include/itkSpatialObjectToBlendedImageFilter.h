@@ -32,51 +32,51 @@ namespace itk
 *
 * \ingroup ITKCSIROTomo
 */
-template< typename TInputSpatialObject, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT SpatialObjectToBlendedImageFilter : public SpatialObjectToImageFilter< TInputSpatialObject, TOutputImage >
-{
-public:
-    /** Standard class typedefs. */
-    typedef SpatialObjectToBlendedImageFilter                               Self;
-    typedef SpatialObjectToImageFilter< TInputSpatialObject, TOutputImage > Superclass;
-    typedef SmartPointer< Self >                                            Pointer;
-    typedef SmartPointer< const Self >                                      ConstPointer;
+    template< typename TInputSpatialObject, typename TOutputImage >
+    class ITK_TEMPLATE_EXPORT SpatialObjectToBlendedImageFilter : public SpatialObjectToImageFilter< TInputSpatialObject, TOutputImage >
+    {
+    public:
+        /** Standard class typedefs. */
+        typedef SpatialObjectToBlendedImageFilter                               Self;
+        typedef SpatialObjectToImageFilter< TInputSpatialObject, TOutputImage > Superclass;
+        typedef SmartPointer< Self >                                            Pointer;
+        typedef SmartPointer< const Self >                                      ConstPointer;
 
-    typedef TOutputImage                                                    OutputImageType;
-    typedef typename OutputImageType::SizeType                              SizeType;
-    typedef typename OutputImageType::PointType                             PointType;
-    typedef typename OutputImageType::Pointer                               OutputImagePointer;
-    typedef typename OutputImageType::ValueType                             ValueType;
-    typedef typename OutputImageType::SpacingType                           SpacingType;
-    typedef typename OutputImageType::DirectionType                         DirectionType;
+        typedef TOutputImage                                                    OutputImageType;
+        typedef typename OutputImageType::SizeType                              SizeType;
+        typedef typename OutputImageType::PointType                             PointType;
+        typedef typename OutputImageType::Pointer                               OutputImagePointer;
+        typedef typename OutputImageType::ValueType                             ValueType;
+        typedef typename OutputImageType::SpacingType                           SpacingType;
+        typedef typename OutputImageType::DirectionType                         DirectionType;
 
-    /** Method for creation through the object factory. */
-    itkNewMacro(Self);
+        /** Method for creation through the object factory. */
+        itkNewMacro(Self);
 
-    /** Run-time type information (and related methods). */
-    itkTypeMacro(SpatialObjectToBlendedImageFilter, SpatialObjectToImageFilter);
+        /** Run-time type information (and related methods). */
+        itkTypeMacro(SpatialObjectToBlendedImageFilter, SpatialObjectToImageFilter);
 
-    /** Superclass typedefs. */
-    typedef typename Superclass::OutputImageRegionType                      OutputImageRegionType;
+        /** Superclass typedefs. */
+        typedef typename Superclass::OutputImageRegionType                      OutputImageRegionType;
 
-    /** Some convenient typedefs. */
-    typedef TInputSpatialObject                                             InputSpatialObjectType;
-    typedef typename InputSpatialObjectType::Pointer                        InputSpatialObjectPointer;
-    typedef typename InputSpatialObjectType::ConstPointer                   InputSpatialObjectConstPointer;
-    typedef typename TInputSpatialObject::ChildrenListType                  ChildrenListType;
+        /** Some convenient typedefs. */
+        typedef TInputSpatialObject                                             InputSpatialObjectType;
+        typedef typename InputSpatialObjectType::Pointer                        InputSpatialObjectPointer;
+        typedef typename InputSpatialObjectType::ConstPointer                   InputSpatialObjectConstPointer;
+        typedef typename TInputSpatialObject::ChildrenListType                  ChildrenListType;
 
-    /** ImageDimension constants */
-    itkStaticConstMacro( ObjectDimension, unsigned int,	InputSpatialObjectType::ObjectDimension );
-    itkStaticConstMacro( OutputImageDimension, unsigned int, TOutputImage::ImageDimension );
-protected:
-    SpatialObjectToBlendedImageFilter();
-    ~SpatialObjectToBlendedImageFilter() ITK_OVERRIDE {}
+        /** ImageDimension constants */
+        itkStaticConstMacro( ObjectDimension, unsigned int,	InputSpatialObjectType::ObjectDimension );
+        itkStaticConstMacro( OutputImageDimension, unsigned int, TOutputImage::ImageDimension );
+    protected:
+        SpatialObjectToBlendedImageFilter();
+        ~SpatialObjectToBlendedImageFilter() ITK_OVERRIDE {}
 
-    virtual void GenerateData() ITK_OVERRIDE;
+        virtual void GenerateData() ITK_OVERRIDE;
 
-private:
-    ITK_DISALLOW_COPY_AND_ASSIGN(SpatialObjectToBlendedImageFilter);
-};
+    private:
+        ITK_DISALLOW_COPY_AND_ASSIGN(SpatialObjectToBlendedImageFilter);
+    };
 }
 
 #ifndef ITK_MANUAL_INSTANTIATION

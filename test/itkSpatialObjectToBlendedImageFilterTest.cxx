@@ -26,29 +26,29 @@
 
 namespace
 {
-	class ShowProgress : public itk::Command
-	{
-	public:
-		itkNewMacro( ShowProgress );
+    class ShowProgress : public itk::Command
+    {
+    public:
+        itkNewMacro( ShowProgress );
 
-		void Execute( itk::Object* caller, const itk::EventObject& event ) override
-		{
-			Execute( (const itk::Object*)caller, event );
-		}
+        void Execute( itk::Object* caller, const itk::EventObject& event ) override
+        {
+            Execute( (const itk::Object*)caller, event );
+        }
 
-		void Execute( const itk::Object* caller, const itk::EventObject& event ) override
-		{
-			if ( !itk::ProgressEvent().CheckEvent( &event ) )
-				return;
+        void Execute( const itk::Object* caller, const itk::EventObject& event ) override
+        {
+            if ( !itk::ProgressEvent().CheckEvent( &event ) )
+                return;
 
-			const auto* pProcessObject( dynamic_cast< const itk::ProcessObject* >( caller ) );
+            const auto* pProcessObject( dynamic_cast< const itk::ProcessObject* >( caller ) );
 
-			if ( !pProcessObject )
-				return;
+            if ( !pProcessObject )
+                return;
 
-			std::cout << " " << pProcessObject->GetProgress();
-		}
-	};
+            std::cout << " " << pProcessObject->GetProgress();
+        }
+    };
 }
 
 int itkSpatialObjectToBlendedImageFilterTest( int argc, char * argv[] )
@@ -68,38 +68,35 @@ int itkSpatialObjectToBlendedImageFilterTest( int argc, char * argv[] )
     using FilterType = itk::SpatialObjectToBlendedImageFilter< ImageSpatialObjectType, ImageType >;
     FilterType::Pointer pFilter( FilterType::New() );
 
-#ifdef TEMP_REMOVED
+    EXERCISE_BASIC_OBJECT_METHODS( pFilter, SpatialObjectToBlendedImageFilter, SpatialObjectToImageFilter );
 
-	EXERCISE_BASIC_OBJECT_METHODS( pFilter, SpatialObjectToBlendedImageFilter, SpatialObjectToImageFilter );
+    // Create input image to avoid test dependencies
+    ImageType::SizeType size;
+    size.Fill( 128 );
+    ImageType::Pointer pImage( ImageType::New() );
+    pImage->SetRegions( size );
+    pImage->Allocate();
+    pImage->FillBuffer( 0.0f );
 
-	// Create input image to avoid test dependencies
-	ImageType::SizeType size;
-	size.Fill( 128 );
-	ImageType::Pointer pImage( ImageType::New() );
-	pImage->SetRegions( size );
-	pImage->Allocate();
-	pImage->FillBuffer( 0.0f );
+    // Create an image spatial object and attach image
+    ImageSpatialObjectType::Pointer pImageSpatialObject( ImageSpatialObjectType::New() );
+    pImageSpatialObject->SetImage( pImage );
 
-	// Create an image spatial object and attach image
-	ImageSpatialObjectType::Pointer pImageSpatialObject( ImageSpatialObjectType::New() );
-	pImageSpatialObject->SetImage( pImage );
+    pFilter->SetInput( pImageSpatialObject  );
 
-	pFilter->SetInput( pImageSpatialObject  );
+    ShowProgress::Pointer pShowProgress( ShowProgress::New() );
+    pFilter->AddObserver( itk::ProgressEvent(), pShowProgress );
+    pFilter->SetInput( pImageSpatialObject );
 
-	ShowProgress::Pointer pShowProgress( ShowProgress::New() );
-	pFilter->AddObserver( itk::ProgressEvent(), pShowProgress );
-	pFilter->SetInput( pImageSpatialObject );
-
-	try
-	{
-		pFilter->Update();
-	}
-	catch( itk::ExceptionObject & error )
-	{
-		std::cerr << "Error: " << error << std::endl;
-		return EXIT_FAILURE;
-	}
-#endif
+    try
+    {
+        pFilter->Update();
+    }
+    catch( itk::ExceptionObject & error )
+    {
+        std::cerr << "Error: " << error << std::endl;
+        return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }

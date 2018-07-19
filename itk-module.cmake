@@ -11,6 +11,8 @@ itk_module(ITKCSIROTomo
 	ITKSpatialObjects
 	ITKIOImageBase
   TEST_DEPENDS
+	ITKCommon
+	ITKSpatialObjects
 	ITKTransform
     ITKTestKernel
   DESCRIPTION
