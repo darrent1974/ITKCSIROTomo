@@ -12,9 +12,11 @@ itk_module(ITKCSIROTomo
 	ITKIOImageBase
   TEST_DEPENDS
 	ITKCommon
-	ITKSpatialObjects
+	ITKSmoothing
 	ITKTransform
-    ITKTestKernel
+	ITKSpatialObjects
+	ITKIOImageBase
+	ITKTestKernel
   DESCRIPTION
     "${DOCUMENTATION}"
   EXCLUDE_FROM_DEFAULT
