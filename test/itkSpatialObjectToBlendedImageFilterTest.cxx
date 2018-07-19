@@ -72,7 +72,7 @@ int itkSpatialObjectToBlendedImageFilterTest( int argc, char * argv[] )
     FilterType::Pointer pFilter( FilterType::New() );
     EXERCISE_BASIC_OBJECT_METHODS( pFilter, SpatialObjectToBlendedImageFilter, SpatialObjectToImageFilter );
 
-    GroupSpatialObjectType::Pointer pGroupSpatialObject( GroupSpatialObjectType::New() );
+    //GroupSpatialObjectType::Pointer pGroupSpatialObject( GroupSpatialObjectType::New() );
 
 #ifdef TEMP_REMOVED
     // Create input image to avoid test dependencies
