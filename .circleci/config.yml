@@ -5,6 +5,9 @@ jobs:
     docker:
       - image: insighttoolkit/module-ci:v4.13
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "cf:34:a3:8d:e0:f6:6d:3f:9b:75:f1:bb:60:ee:59:c1"
       - checkout:
           path: /ITKCSIROTomo
       - run:
