@@ -35,7 +35,7 @@ namespace itk
     void SpatialObjectToBlendedImageFilter< TInputSpatialObject, TOutputImage >::GenerateData( void )
     {
         itkDebugMacro(<< "SpatialObjectToBlendedImageFilter::Update() called");
-#ifdef TEMP_REMOVED
+
 
         // Get the input and output pointers
         const InputSpatialObjectType *pInputSpatialObject( this->GetInput() );
@@ -138,7 +138,7 @@ namespace itk
 
             progress.CompletedPixel();
         }
-#endif
+
       itkDebugMacro(<< "SpatialObjectToBlendedImageFilter::Update() finished");
     }
 }
