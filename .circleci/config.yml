@@ -64,4 +64,4 @@ workflows:
     build-test-package:
       jobs:
         - build-and-test
-	- package
+        - package
