@@ -4,21 +4,15 @@ get_filename_component(MY_CURRENT_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 file(READ "${MY_CURRENT_DIR}/README.rst" DOCUMENTATION)
 
 itk_module(ITKCSIROTomo
-  DEPENDS
+  ENABLE_SHARED
+  DEPENDS 
     ITKCommon
 	ITKSmoothing
-	ITKTransform
 	ITKSpatialObjects
 	ITKIOImageBase
   TEST_DEPENDS
-	ITKCommon
-	ITKSmoothing
-	ITKTransform
-	ITKSpatialObjects
-	ITKIOImageBase
 	ITKTestKernel
   DESCRIPTION
     "${DOCUMENTATION}"
   EXCLUDE_FROM_DEFAULT
-  ENABLE_SHARED
 )
