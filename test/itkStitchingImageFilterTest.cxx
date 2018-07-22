@@ -22,6 +22,7 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkTestingMacros.h"
+#include "itkRegionOfInterestImageFilter.h"
 
 namespace
 {
@@ -63,18 +64,6 @@ int itkStitchingImageFilterTest( int argc, char * argv[] )
     using PixelType = float;
     using ImageType = itk::Image< PixelType, uintDimension >;
 
-#ifdef TEMP_REMOVED
-    typedef itk::ImageFileReader< ImageType > ReaderType;
-    ReaderType::Pointer pReader( ReaderType::New() );
-    pReader->SetFileName( argv[1] );
-    pReader->Update();
-    ImageType::Pointer pImage1( pReader->GetOutput() );
-
-    pReader->SetFileName( argv[2] );
-    pReader->Update();
-    ImageType::Pointer pImage2( pReader->GetOutput() );
-#endif
-
     ImageType::SpacingType spacingImage;
     spacingImage.Fill( 0.1f );
 
@@ -85,32 +74,28 @@ int itkStitchingImageFilterTest( int argc, char * argv[] )
     pImage1->SetRegions( size );
     pImage1->SetSpacing( spacingImage );
     pImage1->Allocate();
-    pImage1->FillBuffer( 0.1f );
+    pImage1->FillBuffer( 100.0f );
 
     ImageType::Pointer pImage2( ImageType::New() );
     pImage2->SetRegions( size );
     pImage2->SetSpacing( spacingImage );
     pImage2->Allocate();
-    pImage2->FillBuffer( 0.2f );
+    pImage2->FillBuffer( 200.0f );
 
     ImageType::Pointer pImage3( ImageType::New() );
     pImage3->SetRegions( size );
     pImage3->SetSpacing( spacingImage );
     pImage3->Allocate();
-    pImage3->FillBuffer( 0.3f );
-
+    pImage3->FillBuffer( 300.0f );
 
     using FilterType = itk::StitchingImageFilter< ImageType >;
     FilterType::Pointer pFilter( FilterType::New() );
 
-#ifdef TEMP_REMOVED
-
     FilterType::SpacingType spacingShift;
     spacingShift[0] = 0.0;
-    spacingShift[1] = 4.0;
-    spacingShift[2] = 0.0;
+    spacingShift[1] = 5.0;
 
-    //EXERCISE_BASIC_OBJECT_METHODS( pFilter, StitchingImageFilter, ImageToImageFilter );
+    EXERCISE_BASIC_OBJECT_METHODS( pFilter, StitchingImageFilter, ImageToImageFilter );
 
     ShowProgress::Pointer pShowProgress( ShowProgress::New() );
     pFilter->AddObserver( itk::ProgressEvent(), pShowProgress );
@@ -119,23 +104,32 @@ int itkStitchingImageFilterTest( int argc, char * argv[] )
     pFilter->SetInput( 2, pImage3 );
     pFilter->SetShift( spacingShift );
 
+    // Trim each input image by 1.0mm on the top and bottom prior to stitching
+    ImageType::PointType pointTrimMin;
+    pointTrimMin[0] = 0.0;
+    pointTrimMin[1] = 1.0;
+    pFilter->SetTrimPointMin( pointTrimMin );
+
+    ImageType::PointType pointTrimMax;
+    pointTrimMax[0] = static_cast<double>( size[0] ) * spacingImage[0];
+    pointTrimMax[1] = ( static_cast<double>( size[1] ) * spacingImage[1] ) - 1.0;
+    pFilter->SetTrimPointMax( pointTrimMax );
+
     try
     {
         pFilter->Update();
-#ifdef TEMP_REMOVED
+
         typedef itk::ImageFileWriter< ImageType > WriterType;
         WriterType::Pointer pWriter( WriterType::New() );
-        pWriter->SetFileName( "stiched.mhd" );
+        pWriter->SetFileName( "stitched.mhd" );
         pWriter->SetInput( pFilter->GetOutput() );
         TRY_EXPECT_NO_EXCEPTION( pWriter->Update() );
-#endif
     }
     catch( itk::ExceptionObject & error )
     {
         std::cerr << "Error: " << error << std::endl;
         return EXIT_FAILURE;
     }
-#endif
 
     return EXIT_SUCCESS;
 }

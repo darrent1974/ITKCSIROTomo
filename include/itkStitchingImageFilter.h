@@ -68,17 +68,23 @@ public:
     typedef typename TImage::PointType                          PointType;
     typedef typename TImage::SpacingType                        SpacingType;
 
-    typedef GroupSpatialObject< ImageDimension >                GroupSpatialObjectType;
-    typedef ImageSpatialObject< ImageDimension, PixelType >     ImageSpatialObjectType;
-    typedef SpatialObjectToBlendedImageFilter< GroupSpatialObjectType, TImage>  SpatialObjectToBlendedImageFilterType;
+    typedef GroupSpatialObject< ImageDimension >                                GroupSpatialObjectType;
+    typedef ImageSpatialObject< ImageDimension, PixelType >                     ImageSpatialObjectType;
+    typedef SpatialObjectToBlendedImageFilter< TImage >                         SpatialObjectToBlendedImageFilterType;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
     itkConceptMacro( FloatingPointPixel, ( itk::Concept::IsFloatingPoint< typename TImage::PixelType > ) );
 #endif
 
-    // overlap in physical coordinates
+    // Shift in physical coordinates
     itkSetMacro( Shift, SpacingType );
     itkGetConstMacro( Shift, SpacingType );
+
+    // Trim amounts in physical coordinates
+    itkSetMacro( TrimPointMin, PointType );
+    itkGetConstMacro( TrimPointMin, PointType );
+    itkSetMacro( TrimPointMax, PointType );
+    itkGetConstMacro( TrimPointMax, PointType );
 
 protected:
     StitchingImageFilter();
@@ -104,11 +110,16 @@ protected:
      * order to inform the pipeline execution model.
      * \sa ProcessObject::GenerateInputRequestedRegion()  */
     virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+
+    RegionType ComputeTrimRegion( typename TImage::ConstPointer pImage );
+    typename TImage::Pointer CreateRegionCopy( typename TImage::ConstPointer pImage, RegionType region );
 private:
     ITK_DISALLOW_COPY_AND_ASSIGN(StitchingImageFilter);
 
     SpacingType                                     m_Shift;
-    typename GroupSpatialObjectType::Pointer        m_GroupImageSpatialObjectss;
+    PointType                                       m_TrimPointMin;
+    PointType                                       m_TrimPointMax;
+    typename GroupSpatialObjectType::Pointer        m_GroupImageSpatialObjects;
 };
 }
 

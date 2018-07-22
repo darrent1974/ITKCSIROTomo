@@ -22,23 +22,24 @@
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkProgressReporter.h"
 #include "itkMath.h"
+#include <limits>
+#include <typeinfo>
+#include <cmath>
+#include "itkMinimumMaximumImageCalculator.h"
 
 namespace itk
 {
-    template< typename TInputSpatialObject, typename TOutputImage >
-    SpatialObjectToBlendedImageFilter< TInputSpatialObject, TOutputImage >::SpatialObjectToBlendedImageFilter()
-        : SpatialObjectToImageFilter< TInputSpatialObject, TOutputImage >()
+    template< typename TOutputImage >
+    SpatialObjectToBlendedImageFilter< TOutputImage >::SpatialObjectToBlendedImageFilter()
+        : SpatialObjectToImageFilter< GroupSpatialObjectType, TOutputImage >()
     {
     }
 
-    template< typename TInputSpatialObject, typename TOutputImage >
-    void SpatialObjectToBlendedImageFilter< TInputSpatialObject, TOutputImage >::GenerateData( void )
+    template< typename TOutputImage >
+    void SpatialObjectToBlendedImageFilter< TOutputImage >::AllocateOutputs()
     {
-        itkDebugMacro(<< "SpatialObjectToBlendedImageFilter::Update() called");
-
-
         // Get the input and output pointers
-        const InputSpatialObjectType *pInputSpatialObject( this->GetInput() );
+        const GroupSpatialObjectType *pInputSpatialObject( this->GetInput() );
         OutputImagePointer pOutput( this->GetOutput() );
 
         // Generate the image
@@ -46,10 +47,8 @@ namespace itk
 
         pInputSpatialObject->ComputeBoundingBox();
 
-        for( unsigned int i = 0; i < ObjectDimension; i++ )
-        {
+        for( unsigned int i = 0; i < OutputImageDimension; i++ )
             sizeOutput[i] = static_cast<SizeValueType>( pInputSpatialObject->GetBoundingBox()->GetMaximum()[i] - pInputSpatialObject->GetBoundingBox()->GetMinimum()[i] );
-        }
 
         typename OutputImageType::IndexType index;
         index.Fill(0);
@@ -95,25 +94,73 @@ namespace itk
         pOutput->SetOrigin( Superclass::m_Origin );     //   and origin
         pOutput->SetDirection( Superclass::m_Direction );
         pOutput->Allocate();   // allocate the image
+        pOutput->FillBuffer( 0 );
+    }
 
-        typedef itk::ImageRegionIteratorWithIndex< OutputImageType > myIteratorType;
+    template< typename TOutputImage >
+    void SpatialObjectToBlendedImageFilter< TOutputImage >::GenerateData()
+    {
+        // Call ImageSource base class method
+        Superclass::Superclass::GenerateData();
+    }
 
-        myIteratorType it(pOutput, region);
+    template< typename TOutputImage >
+    void SpatialObjectToBlendedImageFilter< TOutputImage >::BeforeThreadedGenerateData()
+    {
+        const GroupSpatialObjectType *pInputSpatialObject( this->GetInput() );
+        typename GroupSpatialObjectType::ChildrenListType* pChildList( pInputSpatialObject->GetChildren() );
 
-        itk::Point< double, ObjectDimension >      objectPoint;
-        itk::Point< double, OutputImageDimension > imagePoint;
+        //typedef itk::MinimumMaximumImageCalculator< OutputImageType > MinMaxImageCalcType;
+        using  MinMaxImageCalcType = itk::MinimumMaximumImageCalculator< OutputImageType >;
+        typename MinMaxImageCalcType::Pointer pMinMax( MinMaxImageCalcType::New() );
+
+        m_ImageMin = std::numeric_limits< typename TOutputImage::PixelType >::max();
+        m_ImageMax = std::numeric_limits< typename TOutputImage::PixelType >::min();
+
+        // Determine the min and max image values for all child ImageSpatialObjects
+        for( typename ImageSpatialObjectType::ChildrenListType::const_iterator iterator = pChildList->begin(); iterator != pChildList->end(); ++iterator )
+        {
+            if( typeid( **iterator ) == typeid( ImageSpatialObjectType ) )
+            {
+                ImageSpatialObjectType* pImageSpatialObject( reinterpret_cast< ImageSpatialObjectType* >( ( *iterator ).GetPointer() ) );
+
+                pMinMax->SetImage( pImageSpatialObject->GetImage() );
+                pMinMax->Compute();
+
+                if( pMinMax->GetMinimum() < m_ImageMin )
+                    m_ImageMin = pMinMax->GetMinimum();
+
+                if( pMinMax->GetMaximum() > m_ImageMax )
+                    m_ImageMax = pMinMax->GetMaximum();
+            }
+        }
+    }
+
+    template< typename TOutputImage >
+    void SpatialObjectToBlendedImageFilter< TOutputImage >::ThreadedGenerateData( const RegionType & outputRegionForThread, ThreadIdType threadId )
+    {
+        // Get the input and output pointers
+        const GroupSpatialObjectType *pInputSpatialObject( this->GetInput() );
+        OutputImagePointer pOutput( this->GetOutput() );
+
+        typename GroupSpatialObjectType::ChildrenListType* pChildList( pInputSpatialObject->GetChildren() );
+
+        ProgressReporter progress( this, threadId, outputRegionForThread.GetNumberOfPixels() );
+
+        typedef itk::ImageRegionIteratorWithIndex< OutputImageType > iteratorRegion;
+
+        iteratorRegion itRegion( pOutput, outputRegionForThread );
+
+        itk::Point< double, OutputImageDimension >      objectPoint;
+        itk::Point< double, OutputImageDimension >      imagePoint;
         double dblValObject;
 
-        ProgressReporter progress( this, 0, pOutput->GetRequestedRegion().GetNumberOfPixels() );
-
-        typename TInputSpatialObject::ChildrenListType* pChildList( pInputSpatialObject->GetChildren() );
-
-        while( !it.IsAtEnd() )
+        while( !itRegion.IsAtEnd() )
         {
             // ValueAt requires the point to be in physical coordinate i.e
-            pOutput->TransformIndexToPhysicalPoint( it.GetIndex(), imagePoint );
+            pOutput->TransformIndexToPhysicalPoint( itRegion.GetIndex(), imagePoint );
 
-            for( unsigned int i = 0; i < ObjectDimension; i++ )
+            for( unsigned int i = 0; i < OutputImageDimension; i++ )
                 objectPoint[i] = imagePoint[i];
 
             if( pInputSpatialObject->IsEvaluableAt( objectPoint, Superclass::m_ChildrenDepth ) )
@@ -122,24 +169,32 @@ namespace itk
                 int intDivisor( 0 );
 
                 // Iterate through each child spatial object
-                for( typename TInputSpatialObject::ChildrenListType::const_iterator iterator = pChildList->begin(); iterator != pChildList->end(); ++iterator )
+                for( typename ImageSpatialObjectType::ChildrenListType::const_iterator iterator = pChildList->begin(); iterator != pChildList->end(); ++iterator )
                 {
-                    if( (*iterator)->ValueAt( objectPoint, dblValObject ) )
+                    // Only include, inside, evaluable and finite values into the blended calculation
+                    if( (*iterator)->IsInside( objectPoint ) && (*iterator)->ValueAt( objectPoint, dblValObject ) && std::isfinite( dblValObject ) )
                     {
+                        if( typeid( **iterator ) == typeid( ImageSpatialObjectType ) )
+                        {
+                            // Special check for ImageSpatialObjects to ensure that evaluated pixel
+                            // values fall within the range of image pixel values of the contained
+                            // ImageSpatialObjects, if this condition fails then ignore this value
+                            if( dblValObject < m_ImageMin || dblValObject > m_ImageMax  )
+                                continue;
+                        }
+
                         dblValPoint += dblValObject;
                         intDivisor++;
                     }
                 }
 
-                it.Set( intDivisor == 1 ? dblValPoint : dblValPoint / static_cast<double>( intDivisor ) );
+                itRegion.Set( intDivisor == 1 ? dblValPoint : dblValPoint / static_cast<double>( intDivisor ) );
             }
 
-            ++it;
+            ++itRegion;
 
             progress.CompletedPixel();
         }
-
-      itkDebugMacro(<< "SpatialObjectToBlendedImageFilter::Update() finished");
     }
 }
 

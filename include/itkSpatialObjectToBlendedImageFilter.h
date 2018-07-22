@@ -20,6 +20,8 @@
 
 #include "itkSpatialObjectToImageFilter.h"
 #include "itkConceptChecking.h"
+#include "itkImageSpatialObject.h"
+#include "itkGroupSpatialObject.h"
 
 namespace itk
 {
@@ -32,19 +34,21 @@ namespace itk
 *
 * \ingroup ITKCSIROTomo
 */
-    template< typename TInputSpatialObject, typename TOutputImage >
-    class ITK_TEMPLATE_EXPORT SpatialObjectToBlendedImageFilter : public SpatialObjectToImageFilter< TInputSpatialObject, TOutputImage >
+    template< typename TOutputImage >
+    class ITK_TEMPLATE_EXPORT SpatialObjectToBlendedImageFilter : public SpatialObjectToImageFilter< GroupSpatialObject< TOutputImage::ImageDimension >, TOutputImage >
     {
     public:
-
-        itkStaticConstMacro(ObjectDimension, unsigned int, TInputSpatialObject::ObjectDimension);
         itkStaticConstMacro(OutputImageDimension, unsigned int, TOutputImage::ImageDimension);
 
+        typedef SpatialObject< TOutputImage::ImageDimension >                                           SpatialObjectType;
+        typedef GroupSpatialObject< TOutputImage::ImageDimension>                                       GroupSpatialObjectType;
+        typedef ImageSpatialObject< TOutputImage::ImageDimension, typename TOutputImage::PixelType >    ImageSpatialObjectType;
+
         /** Standard class typedefs. */
-        typedef SpatialObjectToBlendedImageFilter                               Self;
-        typedef SpatialObjectToImageFilter< TInputSpatialObject, TOutputImage > Superclass;
-        typedef SmartPointer< Self >                                            Pointer;
-        typedef SmartPointer< const Self >                                      ConstPointer;
+        typedef SpatialObjectToBlendedImageFilter                                   Self;
+        typedef SpatialObjectToImageFilter< GroupSpatialObjectType, TOutputImage >  Superclass;
+        typedef SmartPointer< Self >                                                Pointer;
+        typedef SmartPointer< const Self >                                          ConstPointer;
 
         typedef TOutputImage                                                    OutputImageType;
         typedef typename OutputImageType::SizeType                              SizeType;
@@ -53,6 +57,7 @@ namespace itk
         typedef typename OutputImageType::ValueType                             ValueType;
         typedef typename OutputImageType::SpacingType                           SpacingType;
         typedef typename OutputImageType::DirectionType                         DirectionType;
+        typedef typename OutputImageType::RegionType                            RegionType;
 
         /** Method for creation through the object factory. */
         itkNewMacro(Self);
@@ -64,18 +69,37 @@ namespace itk
         typedef typename Superclass::OutputImageRegionType                      OutputImageRegionType;
 
         /** Some convenient typedefs. */
-        typedef TInputSpatialObject                                             InputSpatialObjectType;
-        typedef typename InputSpatialObjectType::Pointer                        InputSpatialObjectPointer;
-        typedef typename InputSpatialObjectType::ConstPointer                   InputSpatialObjectConstPointer;
-        typedef typename TInputSpatialObject::ChildrenListType                  ChildrenListType;
+        typedef typename ImageSpatialObjectType::Pointer                        ImageSpatialObjectPointer;
+        typedef typename ImageSpatialObjectType::ConstPointer                   ImageSpatialObjectConstPointer;
+        typedef typename GroupSpatialObjectType::ChildrenListType               ChildrenListType;
+        typedef typename SpatialObjectType::Pointer                             SpatialObjectTypePointer;
+
     protected:
         SpatialObjectToBlendedImageFilter();
         virtual ~SpatialObjectToBlendedImageFilter() ITK_OVERRIDE {}
 
+        virtual void AllocateOutputs() ITK_OVERRIDE;
         virtual void GenerateData() ITK_OVERRIDE;
+
+        virtual void BeforeThreadedGenerateData( void ) ITK_OVERRIDE;
+
+        /** SpatialObjectToBlendedImageFilter can be implemented as a multithreaded filter.
+         * Therefore, this implementation provides a ThreadedGenerateData()
+         * routine which is called for each processing thread. The output
+         * image data is allocated automatically by the superclass prior to
+         * calling ThreadedGenerateData().  ThreadedGenerateData can only
+         * write to the portion of the output image specified by the
+         * parameter "outputRegionForThread"
+         *
+         * \sa ImageToImageFilter::ThreadedGenerateData(),
+         *     ImageToImageFilter::GenerateData() */
+        void ThreadedGenerateData( const RegionType & outputRegionForThread, ThreadIdType threadId ) ITK_OVERRIDE;
 
     private:
         ITK_DISALLOW_COPY_AND_ASSIGN(SpatialObjectToBlendedImageFilter);
+
+        double m_ImageMin;
+        double m_ImageMax;
     };
 }
 

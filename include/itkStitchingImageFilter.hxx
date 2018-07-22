@@ -19,20 +19,67 @@
 #define itkStitchingImageFilter_hxx
 
 #include "itkStitchingImageFilter.h"
+#include "itkImageAlgorithm.h"
 
 namespace itk
 {
     template< typename TImage >
     StitchingImageFilter< TImage >::StitchingImageFilter()
     {
+        m_Shift.Fill( 0.0 );
+        m_TrimPointMin.Fill( 0.0 );
+        m_TrimPointMax.Fill( 0.0 );
+
         // Create group to store image spatial objects
-        m_GroupImageSpatialObjectss = GroupSpatialObjectType::New();
+        m_GroupImageSpatialObjects = GroupSpatialObjectType::New();
     }
 
     template< typename TImage >
     void StitchingImageFilter< TImage >::PrintSelf( std::ostream& os, Indent indent ) const
     {
         Superclass::PrintSelf( os, indent );
+    }
+
+    template< typename TImage >
+    typename TImage::Pointer StitchingImageFilter< TImage >::CreateRegionCopy( typename TImage::ConstPointer pImage, RegionType region )
+    {
+        // Create a new image with zero-based indexes containing
+        // a copy of the contents of the passed image/region
+        RegionType regionCopy( region.GetSize() );
+        typename TImage::Pointer pImageCopy( TImage::New() );
+        pImageCopy->SetRegions( regionCopy );
+        pImageCopy->SetSpacing( pImage->GetSpacing() );
+        pImageCopy->Allocate();
+
+        // Copy region
+        ImageAlgorithm::Copy( pImage.GetPointer(), pImageCopy.GetPointer(), region, regionCopy );
+
+        return pImageCopy;
+    }
+
+    template< typename TImage >
+    typename TImage::RegionType StitchingImageFilter< TImage >::ComputeTrimRegion( typename TImage::ConstPointer pImage )
+    {
+        // Special case, no trim points set (zero)
+        if( m_TrimPointMax.EuclideanDistanceTo( m_TrimPointMin ) == 0.0 )
+            return pImage->GetLargestPossibleRegion();
+
+        RegionType regionTrim( pImage->GetLargestPossibleRegion() );
+        IndexType indexBoundMin( regionTrim.GetIndex() );
+        IndexType indexBoundMax;
+
+        /*if( !*/pImage->TransformPhysicalPointToIndex( m_TrimPointMin, indexBoundMin );// )
+        //    itkExceptionMacro ("ComputeTrimRegion min index transform failed");
+
+        regionTrim.SetIndex( indexBoundMin );
+
+        /*if( !*/pImage->TransformPhysicalPointToIndex( m_TrimPointMax, indexBoundMax );// )
+        //    itkExceptionMacro ("ComputeTrimRegion max index transform failed");
+
+        for( unsigned int j = 0; j < ImageDimension; j++ )
+            regionTrim.SetSize( j, indexBoundMax[j] - indexBoundMin[j] );
+
+        return regionTrim;
     }
 
     template< typename TImage >
@@ -47,12 +94,7 @@ namespace itk
 
         if( this->GetNumberOfInputs() == 1 )
         {
-            // If there is only one input, graft a copy of the input to the output
-            typename TImage::Pointer pInputCopy( TImage::New() );
-            pInputCopy->Graft( const_cast< TImage * >( this->GetInput() ) );
-
-            this->GraftOutput( pInputCopy );
-
+            this->GraftOutput( CreateRegionCopy( pInput, ComputeTrimRegion( pInput ) ) );
             return;
         }
 
@@ -60,7 +102,7 @@ namespace itk
 
         typename SpatialObjectToBlendedImageFilterType::Pointer pSpatialObjectToBlendedImage( SpatialObjectToBlendedImageFilterType::New() );
 
-        pSpatialObjectToBlendedImage->SetInput( m_GroupImageSpatialObjectss );
+        pSpatialObjectToBlendedImage->SetInput( m_GroupImageSpatialObjects );
         pSpatialObjectToBlendedImage->SetSize( regionOutput.GetSize() );
         pSpatialObjectToBlendedImage->SetSpacing( pInput->GetSpacing() );
         pSpatialObjectToBlendedImage->Update();
@@ -91,11 +133,14 @@ namespace itk
         int intNumInputs( this->GetNumberOfInputs() );
 
         if( intNumInputs == 1 )
-            // Nothing to do if there is only one input
+        {
+            // Set the output size to the trimmed input size
+            pOutput->SetLargestPossibleRegion( ComputeTrimRegion( pInput ) );
             return;
+        }
 
         // Initialise output region
-        RegionType regionOutput( pInput->GetLargestPossibleRegion() );
+        RegionType regionOutput( pInput->GetRequestedRegion() );
 
         // Initialize output size to be updated
         SizeType sizeOutput( regionOutput.GetSize() );
@@ -103,7 +148,22 @@ namespace itk
         // Set the spacing on the spatial object group based on the spacing of
         // the first image (assuming spacing is consistant over all images)
         typename GroupSpatialObjectType::VectorType vectorSpacing( pInput->GetSpacing() );
-        m_GroupImageSpatialObjectss->SetSpacing( &vectorSpacing[0] );
+        m_GroupImageSpatialObjects->SetSpacing( &vectorSpacing[0] );
+
+        typename GroupSpatialObjectType::VectorType vectorTrimTop;
+        typename GroupSpatialObjectType::VectorType vectorTrimBottom;
+
+        if( m_TrimPointMax.EuclideanDistanceTo( m_TrimPointMin ) == 0.0 )
+        {
+            vectorTrimTop.Fill( 0.0 );
+            vectorTrimBottom.Fill( 0.0 );
+        }
+        else
+            for( unsigned int j = 0; j < ImageDimension; j++ )
+            {
+                vectorTrimTop[j] = m_TrimPointMin[j];
+                vectorTrimBottom[j] = ( static_cast<double>( sizeOutput[j] ) * vectorSpacing[j] ) - m_TrimPointMax[j];
+            }
 
         typename ImageSpatialObjectType::VectorType vectorShift;
         vectorShift.Fill( 0 );
@@ -116,23 +176,24 @@ namespace itk
             // Create new spatial object
             typename ImageSpatialObjectType::Pointer pImageSpatialObject( ImageSpatialObjectType::New() );
 
-            pImageSpatialObject->SetImage( pInputN );
+            pImageSpatialObject->SetImage( CreateRegionCopy( pInputN, ComputeTrimRegion( pInputN ) ) );
 
             // Shift the image relative to the group
             pImageSpatialObject->GetObjectToParentTransform()->SetOffset( vectorShift );
             pImageSpatialObject->ComputeObjectToWorldTransform();
 
             // Add it to the group
-            m_GroupImageSpatialObjectss->AddSpatialObject( pImageSpatialObject );
+            m_GroupImageSpatialObjects->AddSpatialObject( pImageSpatialObject );
+
 
             // Increment the shift for the next image
             vectorShift += m_Shift;
         }
 
         // Compute the bounding-box of all image objects
-        m_GroupImageSpatialObjectss->ComputeBoundingBox();
+        m_GroupImageSpatialObjects->ComputeBoundingBox();
 
-        typename GroupSpatialObjectType::BoundingBoxType::Pointer pBoundingBox( m_GroupImageSpatialObjectss->GetBoundingBox() );
+        typename GroupSpatialObjectType::BoundingBoxType::Pointer pBoundingBox( m_GroupImageSpatialObjects->GetBoundingBox() );
         typename GroupSpatialObjectType::BoundingBoxType::BoundsArrayType bounds( pBoundingBox->GetBounds() );
 
         std::cout << "bounds: " << pBoundingBox->GetBounds() << std::endl;
