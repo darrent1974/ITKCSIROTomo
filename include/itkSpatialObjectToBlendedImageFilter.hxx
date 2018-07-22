@@ -110,8 +110,7 @@ namespace itk
         const GroupSpatialObjectType *pInputSpatialObject( this->GetInput() );
         typename GroupSpatialObjectType::ChildrenListType* pChildList( pInputSpatialObject->GetChildren() );
 
-        //typedef itk::MinimumMaximumImageCalculator< OutputImageType > MinMaxImageCalcType;
-        using  MinMaxImageCalcType = itk::MinimumMaximumImageCalculator< OutputImageType >;
+        typedef itk::MinimumMaximumImageCalculator< OutputImageType > MinMaxImageCalcType;
         typename MinMaxImageCalcType::Pointer pMinMax( MinMaxImageCalcType::New() );
 
         m_ImageMin = std::numeric_limits< typename TOutputImage::PixelType >::max();
