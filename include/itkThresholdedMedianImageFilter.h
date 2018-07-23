@@ -83,12 +83,10 @@ public:
   // End concept checking
 #endif
 
-  // thresholds
   itkSetMacro( ThresholdLower, double );
   itkGetConstMacro( ThresholdLower, double );
   itkSetMacro( ThresholdUpper, double );
   itkGetConstMacro( ThresholdUpper, double );
-
   itkSetMacro( Iterations, unsigned int );
   itkGetConstMacro( Iterations, unsigned int );
 
@@ -112,9 +110,9 @@ protected:
 private:
     ITK_DISALLOW_COPY_AND_ASSIGN(ThresholdedMedianImageFilter);
 
-    double m_ThresholdLower;
-    double m_ThresholdUpper;
-    unsigned int m_Iterations;
+    double                      m_ThresholdLower;
+    double                      m_ThresholdUpper;
+    unsigned int                m_Iterations;
 };
 }
 
