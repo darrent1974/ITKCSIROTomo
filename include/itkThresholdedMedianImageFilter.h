@@ -89,6 +89,9 @@ public:
   itkSetMacro( ThresholdUpper, double );
   itkGetConstMacro( ThresholdUpper, double );
 
+  itkSetMacro( Iterations, unsigned int );
+  itkGetConstMacro( Iterations, unsigned int );
+
 protected:
     ThresholdedMedianImageFilter();
     virtual ~ThresholdedMedianImageFilter() ITK_OVERRIDE {}
@@ -111,6 +114,7 @@ private:
 
     double m_ThresholdLower;
     double m_ThresholdUpper;
+    unsigned int m_Iterations;
 };
 }
 

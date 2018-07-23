@@ -31,14 +31,20 @@
 #include <vector>
 #include <algorithm>
 
+#define DEFAULT_FILTER_RADIUS 3
+
 namespace itk
 {
     template< typename TInputImage, typename TOutputImage >
     ThresholdedMedianImageFilter< TInputImage, TOutputImage >::ThresholdedMedianImageFilter()
         : m_ThresholdLower( 0.0 )
         , m_ThresholdUpper( 1.0 )
+        , m_Iterations( 1 )
     {
-
+        // Set default filter radius
+        typename TOutputImage::SizeType sizeRadius;
+        sizeRadius.Fill( DEFAULT_FILTER_RADIUS );
+        this->SetRadius( sizeRadius );
     }
 
     template< typename TInputImage, typename TOutputImage >
@@ -59,51 +65,50 @@ namespace itk
         // All of our neighborhoods have an odd number of pixels, so there is
         // always a median index (if there where an even number of pixels
         // in the neighborhood we have to average the middle two values).
-
         ZeroFluxNeumannBoundaryCondition< InputImageType > nbc;
         std::vector< InputPixelType >                      pixels;
+
         // Process each of the boundary faces.  These are N-d regions which border
         // the edge of the buffer.
-        for( typename NeighborhoodAlgorithm::ImageBoundaryFacesCalculator< InputImageType >::FaceListType::iterator
-              fit = faceList.begin(); fit != faceList.end(); ++fit )
+        for( typename NeighborhoodAlgorithm::ImageBoundaryFacesCalculator< InputImageType >::FaceListType::iterator fit = faceList.begin(); fit != faceList.end(); ++fit )
         {
-          ImageRegionIterator< OutputImageType > it = ImageRegionIterator< OutputImageType >(output, *fit);
+            ImageRegionIterator< OutputImageType > it( ImageRegionIterator< OutputImageType >( output, *fit ) );
 
-          ConstNeighborhoodIterator< InputImageType > bit =
-            ConstNeighborhoodIterator< InputImageType >(this->GetRadius(), input, *fit);
-          bit.OverrideBoundaryCondition(&nbc);
-          bit.GoToBegin();
-          const unsigned int neighborhoodSize = bit.Size();
-          const unsigned int medianPosition = neighborhoodSize / 2;
-          while ( !bit.IsAtEnd() )
+            ConstNeighborhoodIterator< InputImageType > bit( ConstNeighborhoodIterator< InputImageType >( this->GetRadius(), input, *fit ) );
+            bit.OverrideBoundaryCondition( &nbc );
+            bit.GoToBegin();
+
+            const unsigned int neighborhoodSize( bit.Size() );
+            const unsigned int medianPosition( neighborhoodSize / 2 );
+
+            while( !bit.IsAtEnd() )
             {
-            // collect all the pixels in the neighborhood, note that we use
-            // GetPixel on the NeighborhoodIterator to honor the boundary conditions
-            pixels.resize(neighborhoodSize);
-            for ( unsigned int i = 0; i < neighborhoodSize; ++i )
-              {
-              pixels[i] = ( bit.GetPixel(i) );
-              }
+                // Apply the median filter the given number of iterations
+                for( unsigned int uintIteration = 0; uintIteration < m_Iterations; uintIteration++ )
+                {
+                    // collect all the pixels in the neighborhood, note that we use
+                    // GetPixel on the NeighborhoodIterator to honor the boundary conditions
+                    pixels.resize( neighborhoodSize );
+                    for( unsigned int i = 0; i < neighborhoodSize; ++i )
+                        pixels[i] = ( bit.GetPixel(i) );
 
-            // get the median value
-            const typename std::vector< InputPixelType >::iterator medianIterator = pixels.begin() + medianPosition;
-            std::nth_element( pixels.begin(), medianIterator, pixels.end() );
+                    // get the median value
+                    const typename std::vector< InputPixelType >::iterator medianIterator( pixels.begin() + medianPosition );
+                    std::nth_element( pixels.begin(), medianIterator, pixels.end() );
 
-            // Apply thresholding
-            double dblThresholdedValue( static_cast< double >( *medianIterator ) );
+                    // Apply median filter only to pixels that fall outside the threshold range
+                    double dblPixelValue( static_cast< double >( it.Get() ) );
 
-            if( dblThresholdedValue > m_ThresholdUpper )
-                dblThresholdedValue = m_ThresholdUpper;
-            else if( dblThresholdedValue < m_ThresholdLower )
-                dblThresholdedValue = m_ThresholdLower;
+                    if( dblPixelValue > m_ThresholdLower && dblPixelValue <= m_ThresholdUpper )
+                        it.Set( static_cast< typename OutputImageType::PixelType >( *medianIterator ) );
+                }
 
-            it.Set( static_cast< typename OutputImageType::PixelType >( dblThresholdedValue ) );
+                ++bit;
+                ++it;
 
-            ++bit;
-            ++it;
-            progress.CompletedPixel();
+                progress.CompletedPixel();
             }
-          }
+        }
     }
 }
 
