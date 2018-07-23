@@ -85,26 +85,22 @@ namespace itk
 
             while( !bit.IsAtEnd() )
             {
-                // Apply the median filter the given number of iterations
-                for( unsigned int uintIteration = 0; uintIteration < m_Iterations; uintIteration++ )
-                {
-                    // collect all the pixels in the neighborhood, note that we use
-                    // GetPixel on the NeighborhoodIterator to honor the boundary conditions
-                    pixels.resize( neighborhoodSize );
-                    for( unsigned int i = 0; i < neighborhoodSize; ++i )
-                        pixels[i] = ( bit.GetPixel( i ) );
+                // collect all the pixels in the neighborhood, note that we use
+                // GetPixel on the NeighborhoodIterator to honor the boundary conditions
+                pixels.resize( neighborhoodSize );
+                for( unsigned int i = 0; i < neighborhoodSize; ++i )
+                    pixels[i] = ( bit.GetPixel( i ) );
 
-                    // get the median value
-                    const typename std::vector< InputPixelType >::iterator medianIterator( pixels.begin() + medianPosition );
-                    std::nth_element( pixels.begin(), medianIterator, pixels.end() );
+                // get the median value
+                const typename std::vector< InputPixelType >::iterator medianIterator( pixels.begin() + medianPosition );
+                std::nth_element( pixels.begin(), medianIterator, pixels.end() );
 
-                    double dblPixelValue( static_cast< double >( itInput.Get() ) );
-                    double dblLowerBoundValue( m_ThresholdLower * dblPixelValue );
-                    double dblUpperBoundValue( m_ThresholdUpper * dblPixelValue );
+                double dblPixelValue( static_cast< double >( itInput.Get() ) );
+                double dblLowerBoundValue( m_ThresholdLower * dblPixelValue );
+                double dblUpperBoundValue( m_ThresholdUpper * dblPixelValue );
 
-                    // Apply median filter only to pixels that fall outside the threshold range
-                    itOutput.Set( dblPixelValue > dblLowerBoundValue && dblPixelValue <= dblUpperBoundValue ? itInput.Get() : static_cast< typename OutputImageType::PixelType >(  *medianIterator ) );
-                }
+                // Apply median filter only to pixels that fall outside the threshold range
+                itOutput.Set( dblPixelValue > dblLowerBoundValue && dblPixelValue <= dblUpperBoundValue ? itInput.Get() : static_cast< typename OutputImageType::PixelType >(  *medianIterator ) );
 
                 ++bit;
                 ++itOutput;
