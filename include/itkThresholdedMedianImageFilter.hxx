@@ -24,6 +24,7 @@
 #include "itkConstNeighborhoodIterator.h"
 #include "itkNeighborhoodInnerProduct.h"
 #include "itkImageRegionIterator.h"
+#include "itkImageRegionConstIterator.h"
 #include "itkNeighborhoodAlgorithm.h"
 #include "itkOffset.h"
 #include "itkProgressReporter.h"
@@ -72,7 +73,8 @@ namespace itk
         // the edge of the buffer.
         for( typename NeighborhoodAlgorithm::ImageBoundaryFacesCalculator< InputImageType >::FaceListType::iterator fit = faceList.begin(); fit != faceList.end(); ++fit )
         {
-            ImageRegionIterator< OutputImageType > it( ImageRegionIterator< OutputImageType >( output, *fit ) );
+            ImageRegionConstIterator< InputImageType > itInput( ImageRegionConstIterator< InputImageType >( input, *fit ) );
+            ImageRegionIterator< OutputImageType > itOutput( ImageRegionIterator< OutputImageType >( output, *fit ) );
 
             ConstNeighborhoodIterator< InputImageType > bit( ConstNeighborhoodIterator< InputImageType >( this->GetRadius(), input, *fit ) );
             bit.OverrideBoundaryCondition( &nbc );
@@ -90,20 +92,21 @@ namespace itk
                     // GetPixel on the NeighborhoodIterator to honor the boundary conditions
                     pixels.resize( neighborhoodSize );
                     for( unsigned int i = 0; i < neighborhoodSize; ++i )
-                        pixels[i] = ( bit.GetPixel(i) );
+                        pixels[i] = ( bit.GetPixel( i ) );
 
                     // get the median value
                     const typename std::vector< InputPixelType >::iterator medianIterator( pixels.begin() + medianPosition );
                     std::nth_element( pixels.begin(), medianIterator, pixels.end() );
 
-                    double dblPixelValue( static_cast< double >( it.Get() ) );
+                    double dblPixelValue( static_cast< double >( itInput.Get() ) );
 
                     // Apply median filter only to pixels that fall outside the threshold range
-                    it.Set( dblPixelValue > m_ThresholdLower && dblPixelValue <= m_ThresholdUpper ? it.Get() : static_cast< typename OutputImageType::PixelType >(  *medianIterator ) );
+                    itOutput.Set( dblPixelValue > m_ThresholdLower && dblPixelValue <= m_ThresholdUpper ? itInput.Get() : static_cast< typename OutputImageType::PixelType >(  *medianIterator ) );
                 }
 
                 ++bit;
-                ++it;
+                ++itOutput;
+                ++itInput;
 
                 progress.CompletedPixel();
             }
