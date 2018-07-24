@@ -20,7 +20,7 @@
 
 #include "itkSpatialObjectToImageFilter.h"
 #include "itkConceptChecking.h"
-#include "itkImageSpatialObject.h"
+#include "itkCheckedImageSpatialObject.h"
 #include "itkGroupSpatialObject.h"
 
 namespace itk
@@ -40,9 +40,9 @@ namespace itk
     public:
         itkStaticConstMacro(OutputImageDimension, unsigned int, TOutputImage::ImageDimension);
 
-        typedef SpatialObject< TOutputImage::ImageDimension >                                           SpatialObjectType;
-        typedef GroupSpatialObject< TOutputImage::ImageDimension>                                       GroupSpatialObjectType;
-        typedef ImageSpatialObject< TOutputImage::ImageDimension, typename TOutputImage::PixelType >    ImageSpatialObjectType;
+        typedef SpatialObject< TOutputImage::ImageDimension >                                                   SpatialObjectType;
+        typedef GroupSpatialObject< TOutputImage::ImageDimension>                                               GroupSpatialObjectType;
+        typedef CheckedImageSpatialObject< TOutputImage::ImageDimension, typename TOutputImage::PixelType >     CheckedImageSpatialObjectType;
 
         /** Standard class typedefs. */
         typedef SpatialObjectToBlendedImageFilter                                   Self;
@@ -69,8 +69,8 @@ namespace itk
         typedef typename Superclass::OutputImageRegionType                      OutputImageRegionType;
 
         /** Some convenient typedefs. */
-        typedef typename ImageSpatialObjectType::Pointer                        ImageSpatialObjectPointer;
-        typedef typename ImageSpatialObjectType::ConstPointer                   ImageSpatialObjectConstPointer;
+        typedef typename CheckedImageSpatialObjectType::Pointer                 ImageSpatialObjectPointer;
+        typedef typename CheckedImageSpatialObjectType::ConstPointer            ImageSpatialObjectConstPointer;
         typedef typename GroupSpatialObjectType::ChildrenListType               ChildrenListType;
         typedef typename SpatialObjectType::Pointer                             SpatialObjectTypePointer;
 

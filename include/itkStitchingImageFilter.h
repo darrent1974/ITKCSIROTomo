@@ -23,7 +23,7 @@
 #include "itkProgressReporter.h"
 
 #include "itkGroupSpatialObject.h"
-#include "itkImageSpatialObject.h"
+#include "itkCheckedImageSpatialObject.h"
 #include "itkSpatialObjectTreeContainer.h"
 #include "itkSpatialObjectToBlendedImageFilter.h"
 
@@ -69,7 +69,7 @@ public:
     typedef typename TImage::SpacingType                        SpacingType;
 
     typedef GroupSpatialObject< ImageDimension >                                GroupSpatialObjectType;
-    typedef ImageSpatialObject< ImageDimension, PixelType >                     ImageSpatialObjectType;
+    typedef CheckedImageSpatialObject< ImageDimension, PixelType >              CheckedImageSpatialObjectType;
     typedef SpatialObjectToBlendedImageFilter< TImage >                         SpatialObjectToBlendedImageFilterType;
 
 #ifdef ITK_USE_CONCEPT_CHECKING

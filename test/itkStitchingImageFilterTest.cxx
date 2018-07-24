@@ -67,6 +67,9 @@ int itkStitchingImageFilterTest( int argc, char * argv[] )
     ImageType::SpacingType spacingImage;
     spacingImage.Fill( 0.1f );
 
+    itk::ImageFileReader< ImageType >::Pointer pImageFileReader( itk::ImageFileReader< ImageType >::New() );
+//#define FIXED_IMAGES
+#ifdef FIXED_IMAGES
     // Create input image to avoid test dependencies.
     ImageType::SizeType size;
     size.Fill( 120 );
@@ -86,14 +89,48 @@ int itkStitchingImageFilterTest( int argc, char * argv[] )
     pImage3->SetRegions( size );
     pImage3->SetSpacing( spacingImage );
     pImage3->Allocate();
-    pImage3->FillBuffer( 300.0f );
+    pImage3->FillBuffer( 150.0f );
+
+    ImageType::Pointer pImage4( ImageType::New() );
+    pImage4->SetRegions( size );
+    pImage4->SetSpacing( spacingImage );
+    pImage4->Allocate();
+    pImage4->FillBuffer( 50.0f );
+#else
+    pImageFileReader->SetFileName( "/mnt/Data/development/InsightSoftwareConsortium/ITKCSIROTomo/darkcorrectedflat_0.mhd" );
+    pImageFileReader->Update();
+    ImageType::Pointer pImage1( pImageFileReader->GetOutput() );
+    pImage1->DisconnectPipeline();
+
+    ImageType::SizeType size( pImage1->GetLargestPossibleRegion().GetSize() );
+
+    pImageFileReader->SetFileName( "/mnt/Data/development/InsightSoftwareConsortium/ITKCSIROTomo/darkcorrectedflat_1.mhd" );
+    pImageFileReader->Update();
+    ImageType::Pointer pImage2( pImageFileReader->GetOutput() );
+    pImage2->DisconnectPipeline();
+
+    pImageFileReader->SetFileName( "/mnt/Data/development/InsightSoftwareConsortium/ITKCSIROTomo/darkcorrectedflat_2.mhd" );
+    pImageFileReader->Update();
+    ImageType::Pointer pImage3( pImageFileReader->GetOutput() );
+    pImage3->DisconnectPipeline();
+
+    pImageFileReader->SetFileName( "/mnt/Data/development/InsightSoftwareConsortium/ITKCSIROTomo/darkcorrectedflat_3.mhd" );
+    pImageFileReader->Update();
+    ImageType::Pointer pImage4( pImageFileReader->GetOutput() );
+    pImage4->DisconnectPipeline();
+#endif
 
     using FilterType = itk::StitchingImageFilter< ImageType >;
     FilterType::Pointer pFilter( FilterType::New() );
 
     FilterType::SpacingType spacingShift;
     spacingShift[0] = 0.0;
-    spacingShift[1] = 5.0;
+
+#ifdef FIXED_IMAGES
+    spacingShift[1] = 5;
+#else
+    spacingShift[1] = 15.0;
+#endif
 
     EXERCISE_BASIC_OBJECT_METHODS( pFilter, StitchingImageFilter, ImageToImageFilter );
 
@@ -102,17 +139,26 @@ int itkStitchingImageFilterTest( int argc, char * argv[] )
     pFilter->SetInput( 0, pImage1 );
     pFilter->SetInput( 1, pImage2 );
     pFilter->SetInput( 2, pImage3 );
+    pFilter->SetInput( 3, pImage4 );
     pFilter->SetShift( spacingShift );
 
     // Trim each input image by 1.0mm on the top and bottom prior to stitching
     ImageType::PointType pointTrimMin;
     pointTrimMin[0] = 0.0;
+#ifdef FIXED_IMAGES
     pointTrimMin[1] = 1.0;
+#else
+    pointTrimMin[1] = 0.2;
+#endif
     pFilter->SetTrimPointMin( pointTrimMin );
 
     ImageType::PointType pointTrimMax;
     pointTrimMax[0] = static_cast<double>( size[0] ) * spacingImage[0];
+#ifdef FIXED_IMAGES
     pointTrimMax[1] = ( static_cast<double>( size[1] ) * spacingImage[1] ) - 1.0;
+#else
+    pointTrimMax[1] = ( static_cast<double>( size[1] ) * spacingImage[1] ) - 1.1;
+#endif
     pFilter->SetTrimPointMax( pointTrimMax );
 
     try

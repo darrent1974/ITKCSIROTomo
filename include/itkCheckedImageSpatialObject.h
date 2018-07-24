@@ -1,6 +1,6 @@
 /*=========================================================================
  *
- *  Copyright Insight Software Consortium
+ *  Copyright
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,38 +15,33 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#ifndef itkImageSpatialObject_h
-#define itkImageSpatialObject_h
+#ifndef itkCheckedImageSpatialObject_h
+#define itkCheckedImageSpatialObject_h
 
-#include "itkImage.h"
-#include "itkSpatialObject.h"
-#include "itkNearestNeighborInterpolateImageFunction.h"
+#include "itkImageSpatialObject.h"
 
 namespace itk
 {
-/** \class ImageSpatialObject
- * \brief Implementation of an image as spatial object.
+/** \class CheckedImageSpatialObject
+ * \brief Implementation of an image as spatial object with extra buffer checking.
  *
  * This class combines functionnalities from a spatial object,
  * and an image.
  *
  * \sa SpatialObject CompositeSpatialObject
- * \ingroup ITKSpatialObjects
+ * \ingroup ITKCSIROTomo
  */
 
-template< unsigned int TDimension = 3,
-          typename TPixelType = unsigned char
-          >
-class ITK_TEMPLATE_EXPORT ImageSpatialObject:
-  public SpatialObject< TDimension >
+template< unsigned int TDimension = 3, typename TPixelType = unsigned char >
+class ITK_TEMPLATE_EXPORT CheckedImageSpatialObject:  public ImageSpatialObject< TDimension, TPixelType >
 {
 public:
 
-  typedef double                                       ScalarType;
-  typedef ImageSpatialObject< TDimension, TPixelType > Self;
-  typedef SpatialObject< TDimension >                  Superclass;
-  typedef SmartPointer< Self >                         Pointer;
-  typedef SmartPointer< const Self >                   ConstPointer;
+  typedef double													ScalarType;
+  typedef CheckedImageSpatialObject< TDimension, TPixelType >		Self;
+  typedef ImageSpatialObject< TDimension, TPixelType >				Superclass;
+  typedef SmartPointer< Self >										Pointer;
+  typedef SmartPointer< const Self >								ConstPointer;
 
   typedef TPixelType                            PixelType;
   typedef Image< PixelType, TDimension >        ImageType;
@@ -58,8 +53,7 @@ public:
   typedef typename Superclass::BoundingBoxType  BoundingBoxType;
   typedef InterpolateImageFunction< ImageType > InterpolatorType;
 
-  typedef NearestNeighborInterpolateImageFunction< ImageType >
-  NNInterpolatorType;
+  typedef NearestNeighborInterpolateImageFunction< ImageType > NNInterpolatorType;
 
   typedef VectorContainer< IdentifierType, PointType > PointContainerType;
   typedef typename PointContainerType::Pointer         PointContainerPointer;
@@ -68,8 +62,9 @@ public:
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(ImageSpatialObject, SpatialObject);
+  itkTypeMacro(ImageSpatialObject, ImageSpatialObject);
 
+#ifdef PENDING_REMOVAL
   /** Set the image. */
   void SetImage(const ImageType *image);
 
@@ -78,24 +73,24 @@ public:
 
   /** Return true if the object is evaluable at the requested point,
    *  and else otherwise. */
-  bool IsEvaluableAt(const PointType & point,
-                     unsigned int depth = 0, char *name = ITK_NULLPTR) const ITK_OVERRIDE;
+  bool IsEvaluableAt(const PointType & point,     unsigned int depth = 0, char *name = ITK_NULLPTR) const ITK_OVERRIDE;
 
   /** Returns the value of the image at the requested point.
    *  If the point is not inside the object, then an exception is thrown.
    * \sa ExceptionObject */
   bool ValueAt(const PointType & point, double & value,
                unsigned int depth = 0, char *name = ITK_NULLPTR) const ITK_OVERRIDE;
-
+#endif
   /** Returns true if the point is inside, false otherwise. */
-  bool IsInside(const PointType & point,
-                unsigned int depth, char *name) const ITK_OVERRIDE;
+  bool IsInside(const PointType & point, unsigned int depth, char *name) const ITK_OVERRIDE;
+
 
   /** Test whether a point is inside or outside the object
    *  For computational speed purposes, it is faster if the method does not
    *  check the name of the class and the current depth */
   bool IsInside(const PointType & point) const;
 
+#ifdef PENDING_REMOVAL
   /** Compute the boundaries of the iamge spatial object. */
   bool ComputeLocalBoundingBox() const ITK_OVERRIDE;
 
@@ -117,15 +112,21 @@ public:
   /** Set/Get the interpolator */
   void SetInterpolator(InterpolatorType *interpolator);
   itkGetModifiableObjectMacro(Interpolator, InterpolatorType);
-
+#endif
 protected:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ImageSpatialObject);
+  ITK_DISALLOW_COPY_AND_ASSIGN(CheckedImageSpatialObject);
 
+#ifdef PENDING_REMOVAL
   ImagePointer m_Image;
+#endif
 
-  ImageSpatialObject();
-  virtual ~ImageSpatialObject() ITK_OVERRIDE;
+  CheckedImageSpatialObject();
 
+#ifdef PENDING_REMOVAL
+  virtual ~CheckedImageSpatialObject() ITK_OVERRIDE;
+#endif
+
+#ifdef PENDING_REMOVAL
   void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
 
   int *       m_SlicePosition;
@@ -157,11 +158,12 @@ protected:
   {
     m_PixelType = "double";
   }
+#endif
 };
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageSpatialObject.hxx"
+#include "itkCheckedImageSpatialObject.hxx"
 #endif
 
-#endif //itkImageSpatialObject_h
+#endif //itkCheckedImageSpatialObject_h

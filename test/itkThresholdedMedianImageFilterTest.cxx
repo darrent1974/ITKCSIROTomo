@@ -79,10 +79,24 @@ int itkThresholdedMedianImageFilterTest( int argc, char * argv[] )
     ShowProgress::Pointer pShowProgress( ShowProgress::New() );
     pFilter->AddObserver( itk::ProgressEvent(), pShowProgress );
     pFilter->SetInput( pImage );
+    pFilter->SetThresholdLower( 0.5 );
+    pFilter->SetThresholdUpper( 1.5 );
+
+    FilterType::SizeType sizeFilter;
+    sizeFilter.Fill( 5 );
+    pFilter->SetRadius( sizeFilter );
 
     try
     {
         pFilter->Update();
+
+#ifdef TEMP_REMOVED
+        itk::ImageFileWriter< ImageType >::Pointer pImageFileWriter( itk::ImageFileWriter< ImageType >::New() );
+        pImageFileWriter->SetInput( pFilter->GetOutput() );
+        pImageFileWriter->SetFileName( "thresholdedmedian.mhd" );
+        pImageFileWriter->Update();
+#endif
+
     }
     catch( itk::ExceptionObject & error )
     {

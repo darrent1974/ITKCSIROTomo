@@ -105,6 +105,7 @@ namespace itk
         pSpatialObjectToBlendedImage->SetInput( m_GroupImageSpatialObjects );
         pSpatialObjectToBlendedImage->SetSize( regionOutput.GetSize() );
         pSpatialObjectToBlendedImage->SetSpacing( pInput->GetSpacing() );
+        pSpatialObjectToBlendedImage->SetNumberOfThreads( 1 );
         pSpatialObjectToBlendedImage->Update();
 
         this->GraftOutput( pSpatialObjectToBlendedImage->GetOutput() );
@@ -165,7 +166,7 @@ namespace itk
                 vectorTrimBottom[j] = ( static_cast<double>( sizeOutput[j] ) * vectorSpacing[j] ) - m_TrimPointMax[j];
             }
 
-        typename ImageSpatialObjectType::VectorType vectorShift;
+        typename CheckedImageSpatialObjectType::VectorType vectorShift;
         vectorShift.Fill( 0 );
 
         // Iterate through each input
@@ -174,7 +175,7 @@ namespace itk
             typename TImage::ConstPointer pInputN( this->GetInput( intInputIdx ) );
 
             // Create new spatial object
-            typename ImageSpatialObjectType::Pointer pImageSpatialObject( ImageSpatialObjectType::New() );
+            typename CheckedImageSpatialObjectType::Pointer pImageSpatialObject( CheckedImageSpatialObjectType::New() );
 
             pImageSpatialObject->SetImage( CreateRegionCopy( pInputN, ComputeTrimRegion( pInputN ) ) );
 
@@ -184,7 +185,6 @@ namespace itk
 
             // Add it to the group
             m_GroupImageSpatialObjects->AddSpatialObject( pImageSpatialObject );
-
 
             // Increment the shift for the next image
             vectorShift += m_Shift;
