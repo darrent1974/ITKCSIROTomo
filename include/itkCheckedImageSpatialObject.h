@@ -36,11 +36,11 @@ namespace itk
     class ITK_TEMPLATE_EXPORT CheckedImageSpatialObject:  public ImageSpatialObject< TDimension, TPixelType >
     {
     public:
-        typedef double													ScalarType;
-        typedef CheckedImageSpatialObject< TDimension, TPixelType >		Self;
-        typedef ImageSpatialObject< TDimension, TPixelType >              Superclass;
-        typedef SmartPointer< Self >										Pointer;
-        typedef SmartPointer< const Self >								ConstPointer;
+        typedef double												ScalarType;
+        typedef CheckedImageSpatialObject< TDimension, TPixelType >	Self;
+        typedef ImageSpatialObject< TDimension, TPixelType >        Superclass;
+        typedef SmartPointer< Self >								Pointer;
+        typedef SmartPointer< const Self >							ConstPointer;
 
         typedef TPixelType                                                PixelType;
         typedef Image< PixelType, TDimension >                            ImageType;
