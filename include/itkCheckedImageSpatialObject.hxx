@@ -24,62 +24,55 @@
 
 namespace itk
 {
-/** Constructor */
-template< unsigned int TDimension, typename PixelType >
-CheckedImageSpatialObject< TDimension,  PixelType >::CheckedImageSpatialObject()
-	: ImageSpatialObject< TDimension, PixelType >()
-{
-  this->SetTypeName("CheckedImageSpatialObject");
-}
-
-/** Test whether a point is inside or outside the object
- *  For computational speed purposes, it is faster if the method does not
- *  check the name of the class and the current depth */
-template< unsigned int TDimension, typename PixelType >
-bool CheckedImageSpatialObject< TDimension,  PixelType >::IsInside( const PointType & point ) const
-{
-  if( !this->GetBounds()->IsInside( point ) )
-    return false;
-
-
-  if( !this->SetInternalInverseTransformToWorldToIndexTransform() )
-    return false;
-
-  PointType transformedPoint( this->GetInternalInverseTransform()->TransformPoint( point ) );
-
-  typename InterpolatorType::ContinuousIndexType index;
-
-  for( unsigned int i = 0; i < TDimension; i++ )
-	index[i] = transformedPoint[i];
-
-  return Superclass::m_Interpolator->IsInsideBuffer( index );
-}
-
-
-/** Return true if the given point is inside the image */
-template< unsigned int TDimension, typename PixelType >
-bool
-CheckedImageSpatialObject< TDimension,  PixelType >
-::IsInside(const PointType & point, unsigned int depth, char *name) const
-{
-  if ( name == ITK_NULLPTR )
+    /** Constructor */
+    template< unsigned int TDimension, typename PixelType >
+    CheckedImageSpatialObject< TDimension,  PixelType >::CheckedImageSpatialObject()
+        : ImageSpatialObject< TDimension, PixelType >()
     {
-    if ( IsInside(point) )
-      {
-      return true;
-      }
-    }
-  else if ( strstr(typeid( Self ).name(), name) )
-    {
-    if ( IsInside(point) )
-      {
-      return true;
-      }
+        this->SetTypeName( "CheckedImageSpatialObject" );
     }
 
-  return Superclass::IsInside(point, depth, name);
-}
+    /** Test whether a point is inside or outside the object
+    *  For computational speed purposes, it is faster if the method does not
+    *  check the name of the class and the current depth */
+    template< unsigned int TDimension, typename PixelType >
+    bool CheckedImageSpatialObject< TDimension,  PixelType >::IsInside( const PointType & point ) const
+    {
+        if( !this->GetBounds()->IsInside( point ) )
+        return false;
 
+
+        if( !this->SetInternalInverseTransformToWorldToIndexTransform() )
+            return false;
+
+        PointType transformedPoint( this->GetInternalInverseTransform()->TransformPoint( point ) );
+
+        typename InterpolatorType::ContinuousIndexType index;
+
+        for( unsigned int i = 0; i < TDimension; i++ )
+            index[i] = transformedPoint[i];
+
+        return Superclass::m_Interpolator->IsInsideBuffer( index );
+    }
+
+
+    /** Return true if the given point is inside the image */
+    template< unsigned int TDimension, typename PixelType >
+    bool CheckedImageSpatialObject< TDimension,  PixelType >::IsInside( const PointType & point, unsigned int depth, char *name ) const
+    {
+        if( name == ITK_NULLPTR )
+        {
+            if ( IsInside( point ) )
+                return true;
+        }
+        else if( strstr(typeid( Self ).name(), name ) )
+        {
+            if( IsInside( point ) )
+                return true;
+        }
+
+        return Superclass::IsInside( point, depth, name );
+    }
 } // end namespace itk
 
 #endif // itkCheckedImageSpatialObject_hxx

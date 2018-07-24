@@ -32,134 +32,49 @@ namespace itk
  * \ingroup ITKCSIROTomo
  */
 
-template< unsigned int TDimension = 3, typename TPixelType = unsigned char >
-class ITK_TEMPLATE_EXPORT CheckedImageSpatialObject:  public ImageSpatialObject< TDimension, TPixelType >
-{
-public:
+    template< unsigned int TDimension = 3, typename TPixelType = unsigned char >
+    class ITK_TEMPLATE_EXPORT CheckedImageSpatialObject:  public ImageSpatialObject< TDimension, TPixelType >
+    {
+    public:
+        typedef double													ScalarType;
+        typedef CheckedImageSpatialObject< TDimension, TPixelType >		Self;
+        typedef ImageSpatialObject< TDimension, TPixelType >              Superclass;
+        typedef SmartPointer< Self >										Pointer;
+        typedef SmartPointer< const Self >								ConstPointer;
 
-  typedef double													ScalarType;
-  typedef CheckedImageSpatialObject< TDimension, TPixelType >		Self;
-  typedef ImageSpatialObject< TDimension, TPixelType >				Superclass;
-  typedef SmartPointer< Self >										Pointer;
-  typedef SmartPointer< const Self >								ConstPointer;
+        typedef TPixelType                                                PixelType;
+        typedef Image< PixelType, TDimension >                            ImageType;
+        typedef typename ImageType::ConstPointer                          ImagePointer;
+        typedef typename ImageType::IndexType                             IndexType;
+        typedef typename ImageType::RegionType                            RegionType;
+        typedef typename Superclass::TransformType                        TransformType;
+        typedef typename Superclass::PointType                            PointType;
+        typedef typename Superclass::BoundingBoxType                      BoundingBoxType;
+        typedef InterpolateImageFunction< ImageType >                     InterpolatorType;
 
-  typedef TPixelType                            PixelType;
-  typedef Image< PixelType, TDimension >        ImageType;
-  typedef typename ImageType::ConstPointer      ImagePointer;
-  typedef typename ImageType::IndexType         IndexType;
-  typedef typename ImageType::RegionType        RegionType;
-  typedef typename Superclass::TransformType    TransformType;
-  typedef typename Superclass::PointType        PointType;
-  typedef typename Superclass::BoundingBoxType  BoundingBoxType;
-  typedef InterpolateImageFunction< ImageType > InterpolatorType;
+        typedef NearestNeighborInterpolateImageFunction< ImageType > NNInterpolatorType;
 
-  typedef NearestNeighborInterpolateImageFunction< ImageType > NNInterpolatorType;
+        typedef VectorContainer< IdentifierType, PointType > PointContainerType;
+        typedef typename PointContainerType::Pointer         PointContainerPointer;
 
-  typedef VectorContainer< IdentifierType, PointType > PointContainerType;
-  typedef typename PointContainerType::Pointer         PointContainerPointer;
+        /** Method for creation through the object factory. */
+        itkNewMacro(Self);
 
-  /** Method for creation through the object factory. */
-  itkNewMacro(Self);
+        /** Run-time type information (and related methods). */
+        itkTypeMacro(ImageSpatialObject, ImageSpatialObject);
 
-  /** Run-time type information (and related methods). */
-  itkTypeMacro(ImageSpatialObject, ImageSpatialObject);
+        /** Returns true if the point is inside, false otherwise. */
+        bool IsInside( const PointType & point, unsigned int depth, char *name ) const ITK_OVERRIDE;
 
-#ifdef PENDING_REMOVAL
-  /** Set the image. */
-  void SetImage(const ImageType *image);
+        /** Test whether a point is inside or outside the object
+        *  For computational speed purposes, it is faster if the method does not
+        *  check the name of the class and the current depth */
+        bool IsInside( const PointType & point ) const;
+    protected:
+        ITK_DISALLOW_COPY_AND_ASSIGN(CheckedImageSpatialObject);
 
-  /** Get a pointer to the image currently attached to the object. */
-  const ImageType * GetImage() const;
-
-  /** Return true if the object is evaluable at the requested point,
-   *  and else otherwise. */
-  bool IsEvaluableAt(const PointType & point,     unsigned int depth = 0, char *name = ITK_NULLPTR) const ITK_OVERRIDE;
-
-  /** Returns the value of the image at the requested point.
-   *  If the point is not inside the object, then an exception is thrown.
-   * \sa ExceptionObject */
-  bool ValueAt(const PointType & point, double & value,
-               unsigned int depth = 0, char *name = ITK_NULLPTR) const ITK_OVERRIDE;
-#endif
-  /** Returns true if the point is inside, false otherwise. */
-  bool IsInside(const PointType & point, unsigned int depth, char *name) const ITK_OVERRIDE;
-
-
-  /** Test whether a point is inside or outside the object
-   *  For computational speed purposes, it is faster if the method does not
-   *  check the name of the class and the current depth */
-  bool IsInside(const PointType & point) const;
-
-#ifdef PENDING_REMOVAL
-  /** Compute the boundaries of the iamge spatial object. */
-  bool ComputeLocalBoundingBox() const ITK_OVERRIDE;
-
-  /** Returns the latest modified time of the object and its component. */
-  ModifiedTimeType GetMTime(void) const ITK_OVERRIDE;
-
-  /** Set the slice position */
-  void SetSlicePosition(unsigned int dimension, int position);
-
-  /** Get the slice position */
-  int GetSlicePosition(unsigned int dimension)
-  { return m_SlicePosition[dimension]; }
-
-  const char * GetPixelType()
-  {
-    return m_PixelType.c_str();
-  }
-
-  /** Set/Get the interpolator */
-  void SetInterpolator(InterpolatorType *interpolator);
-  itkGetModifiableObjectMacro(Interpolator, InterpolatorType);
-#endif
-protected:
-  ITK_DISALLOW_COPY_AND_ASSIGN(CheckedImageSpatialObject);
-
-#ifdef PENDING_REMOVAL
-  ImagePointer m_Image;
-#endif
-
-  CheckedImageSpatialObject();
-
-#ifdef PENDING_REMOVAL
-  virtual ~CheckedImageSpatialObject() ITK_OVERRIDE;
-#endif
-
-#ifdef PENDING_REMOVAL
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-  int *       m_SlicePosition;
-  std::string m_PixelType;
-
-  typename InterpolatorType::Pointer m_Interpolator;
-  template <typename T>
-    void InternalSetPixelType(const T *)
-  {
-    itkWarningMacro("itk::ImageSpatialObject() : PixelType not recognized");
-  }
-  void InternalSetPixelType(const short *)
-  {
-    m_PixelType = "short";
-  }
-  void InternalSetPixelType(const unsigned char *)
-  {
-    m_PixelType = "unsigned char";
-  }
-  void InternalSetPixelType(const unsigned short *)
-  {
-    m_PixelType = "unsigned short";
-  }
-  void InternalSetPixelType(const float *)
-  {
-    m_PixelType = "float";
-  }
-  void InternalSetPixelType(const double *)
-  {
-    m_PixelType = "double";
-  }
-#endif
-};
+        CheckedImageSpatialObject();
+    };
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION

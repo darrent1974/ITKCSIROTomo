@@ -105,7 +105,6 @@ namespace itk
         pSpatialObjectToBlendedImage->SetInput( m_GroupImageSpatialObjects );
         pSpatialObjectToBlendedImage->SetSize( regionOutput.GetSize() );
         pSpatialObjectToBlendedImage->SetSpacing( pInput->GetSpacing() );
-        pSpatialObjectToBlendedImage->SetNumberOfThreads( 1 );
         pSpatialObjectToBlendedImage->Update();
 
         this->GraftOutput( pSpatialObjectToBlendedImage->GetOutput() );
