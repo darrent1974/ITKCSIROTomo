@@ -95,14 +95,11 @@ namespace itk
                 const typename std::vector< InputPixelType >::iterator medianIterator( pixels.begin() + medianPosition );
                 std::nth_element( pixels.begin(), medianIterator, pixels.end() );
 
-                double dblPixelValue( static_cast< double >( itInput.Get() ) );
+                double dblPixelValue( static_cast< double >( itInput.Value() ) );
                 double dblMedianValue( static_cast< double >( *medianIterator ) );
 
-                double dblLowerBoundValue( m_ThresholdLower * dblMedianValue );
-                double dblUpperBoundValue( m_ThresholdUpper * dblMedianValue );
-
                 // Apply median filter only to pixels that fall outside the threshold range
-                itOutput.Set( dblPixelValue > dblLowerBoundValue && dblPixelValue <= dblUpperBoundValue ? itInput.Get() : static_cast< typename OutputImageType::PixelType >(  dblMedianValue ) );
+                itOutput.Set( dblPixelValue > m_ThresholdLower && dblPixelValue <= m_ThresholdUpper ? itInput.Value() : static_cast< typename OutputImageType::PixelType >(  dblMedianValue ) );
 
                 ++bit;
                 ++itOutput;

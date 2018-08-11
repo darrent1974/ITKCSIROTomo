@@ -15,11 +15,10 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#ifndef itkThresholdedMedianImageFilter_hxx
-#define itkThresholdedMedianImageFilter_hxx
+#ifndef itkMaskedMedianImageFilter_hxx
+#define itkMaskedMedianImageFilter_hxx
 
-#include "itkThresholdedMedianImageFilter.h"
-
+#include "itkMaskedMedianImageFilter.h"
 
 #include "itkConstNeighborhoodIterator.h"
 #include "itkNeighborhoodInnerProduct.h"
@@ -36,11 +35,8 @@
 
 namespace itk
 {
-    template< typename TInputImage, typename TOutputImage >
-    ThresholdedMedianImageFilter< TInputImage, TOutputImage >::ThresholdedMedianImageFilter()
-        : m_ThresholdLower( 0.0 )
-        , m_ThresholdUpper( 1.0 )
-        , m_Iterations( 1 )
+    template< typename TInputImage, typename TOutputImage, typename TMaskImage >
+    MaskedMedianImageFilter< TInputImage, TOutputImage, TMaskImage >::MaskedMedianImageFilter()
     {
         // Set default filter radius
         typename TOutputImage::SizeType sizeRadius;
@@ -48,17 +44,18 @@ namespace itk
         this->SetRadius( sizeRadius );
     }
 
-    template< typename TInputImage, typename TOutputImage >
-    void ThresholdedMedianImageFilter< TInputImage, TOutputImage >::ThreadedGenerateData( const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId )
+    template< typename TInputImage, typename TOutputImage, typename TMaskImage >
+    void MaskedMedianImageFilter< TInputImage, TOutputImage, TMaskImage >::ThreadedGenerateData( const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId )
     {
         // Allocate output
-        typename OutputImageType::Pointer output( this->GetOutput() );
-        typename  InputImageType::ConstPointer input( this->GetInput() );
+        typename OutputImageType::Pointer pOutput( this->GetOutput() );
+        typename InputImageType::ConstPointer pInput( this->GetInput() );
+        typename MaskImageType::ConstPointer pMask( this->GetMaskImage() );
 
         // Find the data-set boundary "faces"
         NeighborhoodAlgorithm::ImageBoundaryFacesCalculator< InputImageType > bC;
         typename NeighborhoodAlgorithm::ImageBoundaryFacesCalculator< InputImageType >::FaceListType
-        faceList = bC( input, outputRegionForThread, this->GetRadius() );
+        faceList = bC( pInput, outputRegionForThread, this->GetRadius() );
 
         // support progress methods/callbacks
         ProgressReporter progress( this, threadId, outputRegionForThread.GetNumberOfPixels() );
@@ -73,10 +70,11 @@ namespace itk
         // the edge of the buffer.
         for( typename NeighborhoodAlgorithm::ImageBoundaryFacesCalculator< InputImageType >::FaceListType::iterator fit = faceList.begin(); fit != faceList.end(); ++fit )
         {
-            ImageRegionConstIterator< InputImageType > itInput( ImageRegionConstIterator< InputImageType >( input, *fit ) );
-            ImageRegionIterator< OutputImageType > itOutput( ImageRegionIterator< OutputImageType >( output, *fit ) );
+            ImageRegionConstIterator< InputImageType > itInput( ImageRegionConstIterator< InputImageType >( pInput, *fit ) );
+            ImageRegionConstIterator< MaskImageType > itMask( ImageRegionConstIterator< MaskImageType >( pMask, *fit ) );
+            ImageRegionIterator< OutputImageType > itOutput( ImageRegionIterator< OutputImageType >( pOutput, *fit ) );
 
-            ConstNeighborhoodIterator< InputImageType > bit( ConstNeighborhoodIterator< InputImageType >( this->GetRadius(), input, *fit ) );
+            ConstNeighborhoodIterator< InputImageType > bit( ConstNeighborhoodIterator< InputImageType >( this->GetRadius(), pInput, *fit ) );
             bit.OverrideBoundaryCondition( &nbc );
             bit.GoToBegin();
 
@@ -95,15 +93,15 @@ namespace itk
                 const typename std::vector< InputPixelType >::iterator medianIterator( pixels.begin() + medianPosition );
                 std::nth_element( pixels.begin(), medianIterator, pixels.end() );
 
-                double dblPixelValue( static_cast< double >( itInput.Get() ) );
                 double dblMedianValue( static_cast< double >( *medianIterator ) );
 
-                // Apply median filter only to pixels that fall outside the threshold range
-                itOutput.Set( dblPixelValue > m_ThresholdLower && dblPixelValue <= m_ThresholdUpper ? itInput.Get() : static_cast< typename OutputImageType::PixelType >(  dblMedianValue ) );
+                // Apply median filter only to pixels with a non-zero mask value
+                itOutput.Set( itMask.Value() ? static_cast< typename OutputImageType::PixelType >(  dblMedianValue ) : itInput.Value() );
 
                 ++bit;
                 ++itOutput;
                 ++itInput;
+                ++itMask;
 
                 progress.CompletedPixel();
             }
@@ -111,4 +109,4 @@ namespace itk
     }
 }
 
-#endif // itkThresholdedMedianImageFilter_hxx
+#endif // itkMaskedMedianImageFilter_hxx

@@ -15,15 +15,15 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#ifndef itkThresholdedMedianImageFilter_h
-#define itkThresholdedMedianImageFilter_h
+#ifndef itkMaskedMedianImageFilter_h
+#define itkMaskedMedianImageFilter_h
 
 #include "itkBoxImageFilter.h"
 #include "itkImage.h"
 
 namespace itk
 {
-/** \class ThresholdedMedianImageFitler
+/** \class MaskedMedianImageFitler
  *
  * \brief stub.
  *
@@ -33,8 +33,8 @@ namespace itk
  * \ingroup ITKCSIROTomo
  */
 
-    template< typename TInputImage, typename TOutputImage >
-    class ITK_TEMPLATE_EXPORT ThresholdedMedianImageFilter : public BoxImageFilter< TInputImage, TOutputImage >
+    template< typename TInputImage, typename TOutputImage, typename TMaskImage >
+    class ITK_TEMPLATE_EXPORT MaskedMedianImageFilter : public BoxImageFilter< TInputImage, TOutputImage >
     {
     public:
         /** Extract dimension from input and output image. */
@@ -44,33 +44,31 @@ namespace itk
                             TOutputImage::ImageDimension);
 
         /** Convenient typedefs for simplifying declarations. */
-        typedef TInputImage  InputImageType;
-        typedef TOutputImage OutputImageType;
+        typedef TInputImage                                             InputImageType;
+        typedef TOutputImage                                            OutputImageType;
+        typedef TMaskImage                                              MaskImageType;
 
-    #ifdef TEMP_REMOVED
-        using Self = NegLogCheckedImageFilter;
-        using Superclass = ImageToImageFilter< TImage, TImage >;
-        using Pointer = SmartPointer<Self>;
-        using ConstPointer = SmartPointer<const Self>;
-    #else
-        typedef ThresholdedMedianImageFilter                            Self;
+        typedef MaskedMedianImageFilter                                 Self;
         typedef BoxImageFilter< InputImageType, OutputImageType >       Superclass;
         typedef SmartPointer< Self >                                    Pointer;
         typedef SmartPointer< const Self >                              ConstPointer;
-    #endif
+
+        typedef typename MaskImageType::ConstPointer                    MaskImageConstPointer;
 
 
         itkNewMacro(Self);
-        itkTypeMacro(ThresholdedMedianImageFilter, BoxImageFilter);
+        itkTypeMacro(MaskedMedianImageFilter, BoxImageFilter);
 
         /** Image related typedefs. */
-        typedef typename InputImageType::PixelType  InputPixelType;
-        typedef typename OutputImageType::PixelType OutputPixelType;
+        typedef typename InputImageType::PixelType                      InputPixelType;
+        typedef typename OutputImageType::PixelType                     OutputPixelType;
+        typedef typename MaskImageType::PixelType                       MaskPixelType;
 
-        typedef typename InputImageType::RegionType  InputImageRegionType;
-        typedef typename OutputImageType::RegionType OutputImageRegionType;
+        typedef typename InputImageType::RegionType                     InputImageRegionType;
+        typedef typename OutputImageType::RegionType                    OutputImageRegionType;
+        typedef typename MaskImageType::RegionType                      MaskImageRegionType;
 
-        typedef typename InputImageType::SizeType InputSizeType;
+        typedef typename InputImageType::SizeType                       InputSizeType;
 
     #ifdef ITK_USE_CONCEPT_CHECKING
       // Begin concept checking
@@ -83,16 +81,12 @@ namespace itk
       // End concept checking
     #endif
 
-      itkSetMacro( ThresholdLower, double );
-      itkGetConstMacro( ThresholdLower, double );
-      itkSetMacro( ThresholdUpper, double );
-      itkGetConstMacro( ThresholdUpper, double );
-      itkSetMacro( Iterations, unsigned int );
-      itkGetConstMacro( Iterations, unsigned int );
+      itkSetMacro( MaskImage, MaskImageConstPointer );
+      itkGetConstMacro( MaskImage, MaskImageConstPointer );
 
     protected:
-        ThresholdedMedianImageFilter();
-        virtual ~ThresholdedMedianImageFilter() ITK_OVERRIDE {}
+        MaskedMedianImageFilter();
+        virtual ~MaskedMedianImageFilter() ITK_OVERRIDE {}
 
         /** MedianImageFilter can be implemented as a multithreaded filter.
          * Therefore, this implementation provides a ThreadedGenerateData()
@@ -108,16 +102,14 @@ namespace itk
 
 
     private:
-        ITK_DISALLOW_COPY_AND_ASSIGN(ThresholdedMedianImageFilter);
+        ITK_DISALLOW_COPY_AND_ASSIGN(MaskedMedianImageFilter);
 
-        double                      m_ThresholdLower;
-        double                      m_ThresholdUpper;
-        unsigned int                m_Iterations;
+        MaskImageConstPointer m_MaskImage;
     };
 }
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkThresholdedMedianImageFilter.hxx"
+#include "itkMaskedMedianImageFilter.hxx"
 #endif
 
-#endif // itkThresholdedMedianImageFilter_h
+#endif // itkMaskedMedianImageFilter_h

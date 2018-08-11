@@ -33,87 +33,87 @@ namespace itk
  * \ingroup ITKCSIROTomo
  */
 
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT ThresholdedMedianImageFilter : public BoxImageFilter< TInputImage, TOutputImage >
-{
-public:
-    /** Extract dimension from input and output image. */
-    itkStaticConstMacro(InputImageDimension, unsigned int,
-                        TInputImage::ImageDimension);
-    itkStaticConstMacro(OutputImageDimension, unsigned int,
-                        TOutputImage::ImageDimension);
+    template< typename TInputImage, typename TOutputImage >
+    class ITK_TEMPLATE_EXPORT ThresholdedMedianImageFilter : public BoxImageFilter< TInputImage, TOutputImage >
+    {
+    public:
+        /** Extract dimension from input and output image. */
+        itkStaticConstMacro(InputImageDimension, unsigned int,
+                            TInputImage::ImageDimension);
+        itkStaticConstMacro(OutputImageDimension, unsigned int,
+                            TOutputImage::ImageDimension);
 
-    /** Convenient typedefs for simplifying declarations. */
-    typedef TInputImage  InputImageType;
-    typedef TOutputImage OutputImageType;
+        /** Convenient typedefs for simplifying declarations. */
+        typedef TInputImage  InputImageType;
+        typedef TOutputImage OutputImageType;
 
-#ifdef TEMP_REMOVED
-    using Self = NegLogCheckedImageFilter;
-    using Superclass = ImageToImageFilter< TImage, TImage >;
-    using Pointer = SmartPointer<Self>;
-    using ConstPointer = SmartPointer<const Self>;
-#else
-    typedef ThresholdedMedianImageFilter                            Self;
-    typedef BoxImageFilter< InputImageType, OutputImageType >       Superclass;
-    typedef SmartPointer< Self >                                    Pointer;
-    typedef SmartPointer< const Self >                              ConstPointer;
-#endif
-
-
-    itkNewMacro(Self);
-    itkTypeMacro(ThresholdedMedianImageFilter, BoxImageFilter);
-
-    /** Image related typedefs. */
-    typedef typename InputImageType::PixelType  InputPixelType;
-    typedef typename OutputImageType::PixelType OutputPixelType;
-
-    typedef typename InputImageType::RegionType  InputImageRegionType;
-    typedef typename OutputImageType::RegionType OutputImageRegionType;
-
-    typedef typename InputImageType::SizeType InputSizeType;
-
-#ifdef ITK_USE_CONCEPT_CHECKING
-  // Begin concept checking
-  itkConceptMacro( SameDimensionCheck,
-                   ( Concept::SameDimension< InputImageDimension, OutputImageDimension > ) );
-  itkConceptMacro( InputConvertibleToOutputCheck,
-                   ( Concept::Convertible< InputPixelType, OutputPixelType > ) );
-  itkConceptMacro( InputLessThanComparableCheck,
-                   ( Concept::LessThanComparable< InputPixelType > ) );
-  // End concept checking
-#endif
-
-  itkSetMacro( ThresholdLower, double );
-  itkGetConstMacro( ThresholdLower, double );
-  itkSetMacro( ThresholdUpper, double );
-  itkGetConstMacro( ThresholdUpper, double );
-  itkSetMacro( Iterations, unsigned int );
-  itkGetConstMacro( Iterations, unsigned int );
-
-protected:
-    ThresholdedMedianImageFilter();
-    virtual ~ThresholdedMedianImageFilter() ITK_OVERRIDE {}
-
-    /** MedianImageFilter can be implemented as a multithreaded filter.
-     * Therefore, this implementation provides a ThreadedGenerateData()
-     * routine which is called for each processing thread. The output
-     * image data is allocated automatically by the superclass prior to
-     * calling ThreadedGenerateData().  ThreadedGenerateData can only
-     * write to the portion of the output image specified by the
-     * parameter "outputRegionForThread"
-     *
-     * \sa ImageToImageFilter::ThreadedGenerateData(),
-     *     ImageToImageFilter::GenerateData() */
-    void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId) ITK_OVERRIDE;
+    #ifdef TEMP_REMOVED
+        using Self = NegLogCheckedImageFilter;
+        using Superclass = ImageToImageFilter< TImage, TImage >;
+        using Pointer = SmartPointer<Self>;
+        using ConstPointer = SmartPointer<const Self>;
+    #else
+        typedef ThresholdedMedianImageFilter                            Self;
+        typedef BoxImageFilter< InputImageType, OutputImageType >       Superclass;
+        typedef SmartPointer< Self >                                    Pointer;
+        typedef SmartPointer< const Self >                              ConstPointer;
+    #endif
 
 
-private:
-    ITK_DISALLOW_COPY_AND_ASSIGN(ThresholdedMedianImageFilter);
+        itkNewMacro(Self);
+        itkTypeMacro(ThresholdedMedianImageFilter, BoxImageFilter);
 
-    double                      m_ThresholdLower;
-    double                      m_ThresholdUpper;
-    unsigned int                m_Iterations;
-};
+        /** Image related typedefs. */
+        typedef typename InputImageType::PixelType  InputPixelType;
+        typedef typename OutputImageType::PixelType OutputPixelType;
+
+        typedef typename InputImageType::RegionType  InputImageRegionType;
+        typedef typename OutputImageType::RegionType OutputImageRegionType;
+
+        typedef typename InputImageType::SizeType InputSizeType;
+
+    #ifdef ITK_USE_CONCEPT_CHECKING
+      // Begin concept checking
+      itkConceptMacro( SameDimensionCheck,
+                       ( Concept::SameDimension< InputImageDimension, OutputImageDimension > ) );
+      itkConceptMacro( InputConvertibleToOutputCheck,
+                       ( Concept::Convertible< InputPixelType, OutputPixelType > ) );
+      itkConceptMacro( InputLessThanComparableCheck,
+                       ( Concept::LessThanComparable< InputPixelType > ) );
+      // End concept checking
+    #endif
+
+      itkSetMacro( ThresholdLower, double );
+      itkGetConstMacro( ThresholdLower, double );
+      itkSetMacro( ThresholdUpper, double );
+      itkGetConstMacro( ThresholdUpper, double );
+      itkSetMacro( Iterations, unsigned int );
+      itkGetConstMacro( Iterations, unsigned int );
+
+    protected:
+        ThresholdedMedianImageFilter();
+        virtual ~ThresholdedMedianImageFilter() ITK_OVERRIDE {}
+
+        /** MedianImageFilter can be implemented as a multithreaded filter.
+         * Therefore, this implementation provides a ThreadedGenerateData()
+         * routine which is called for each processing thread. The output
+         * image data is allocated automatically by the superclass prior to
+         * calling ThreadedGenerateData().  ThreadedGenerateData can only
+         * write to the portion of the output image specified by the
+         * parameter "outputRegionForThread"
+         *
+         * \sa ImageToImageFilter::ThreadedGenerateData(),
+         *     ImageToImageFilter::GenerateData() */
+        void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId) ITK_OVERRIDE;
+
+
+    private:
+        ITK_DISALLOW_COPY_AND_ASSIGN(ThresholdedMedianImageFilter);
+
+        double                      m_ThresholdLower;
+        double                      m_ThresholdUpper;
+        unsigned int                m_Iterations;
+    };
 }
 
 #ifndef ITK_MANUAL_INSTANTIATION

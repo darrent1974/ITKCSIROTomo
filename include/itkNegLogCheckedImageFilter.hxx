@@ -69,11 +69,7 @@ namespace itk
     template< typename TImage >
     void NegLogCheckedImageFilter< TImage >::GenerateData()
     {
-    #ifdef TEMP_REMOVED
-        using FunctorFilterType = UnaryFunctorImageFilter< TImage, TImage, Functor::NegLogChecked<typename TImage::PixelType, typename TImage::PixelType > >;
-    #else
         typedef UnaryFunctorImageFilter< TImage, TImage, Functor::NegLogChecked<typename TImage::PixelType, typename TImage::PixelType > > FunctorFilterType;
-    #endif
 
         typename FunctorFilterType::Pointer pFunctorFilter( FunctorFilterType::New() );
 

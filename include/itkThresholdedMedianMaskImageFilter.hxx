@@ -15,77 +15,94 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#ifndef itkThresholdedMaskImageFilter_hxx
-#define itkThresholdedMaskImageFilter_hxx
+#ifndef itkThresholdedMedianMaskImageFilter_hxx
+#define itkThresholdedMedianMaskImageFilter_hxx
 
-#include "itkThresholdedMaskImageFilter.h"
+#include "itkThresholdedMedianMaskImageFilter.h"
 
-#include "itkUnaryFunctorImageFilter.h"
+#include "itkBinaryFunctorImageFilter.h"
 #include "itkMath.h"
 #include "itkNumericTraits.h"
+#include "itkThresholdedMedianMaskImageFilter.h"
+
+#ifdef PENDING_REMOVAL
+#include "itkImageFileWriter.h"
+#endif
 
 namespace itk
 {
     namespace Functor
     {
-        template<typename TInput, typename TOutput>
-		class ThresholdedMask
+        template< typename TPixelTypeInput, typename PixelTypeOutput >
+        class ThresholdedMask
         {
         public:
-			itkSetMacro( ThresholdLower, double );
-			itkGetConstMacro( ThresholdLower, double );
-			itkSetMacro( ThresholdUpper, double );
-			itkGetConstMacro( ThresholdUpper, double );
+            void SetThresholdLower( const double dblThresholdLower ) { m_ThresholdLower = dblThresholdLower; }
+            double GetThresholdLower() const { return m_ThresholdLower; }
+            void SetThresholdUpper( const double dblThresholdUpper ) { m_ThresholdUpper = dblThresholdUpper; }
+            double GetThresholdUpper() const { return m_ThresholdUpper; }
 
-			ThresholdedMask() {}
-			~ThresholdedMask() {}
-			bool operator!=(const ThresholdedMask &) const
+            ThresholdedMask() {}
+            ~ThresholdedMask() {}
+            bool operator!=(const ThresholdedMask &) const
             {
                 return false;
             }
 
-			bool operator==(const ThresholdedMask & other) const
+            bool operator==( const ThresholdedMask & other ) const
             {
                 return !( *this != other );
             }
 
-            inline TOutput operator()( const TInput & A ) const
+            inline PixelTypeOutput operator()( const TPixelTypeInput & A, const TPixelTypeInput & B ) const
             {
-                if( itk::NumericTraits<TInput>::IsNonpositive( A ) )
-                    return itk::NumericTraits<TOutput>::ZeroValue();
-                else
-                    return static_cast<TOutput>( -std::log( static_cast<double>( A ) ) );
+                return ( A < m_ThresholdLower * B || A > m_ThresholdUpper * B ) ? itk::NumericTraits<PixelTypeOutput>::OneValue() : itk::NumericTraits<PixelTypeOutput>::ZeroValue();
             }
-		private:
-			double                      m_ThresholdLower;
-			double                      m_ThresholdUpper;
+        private:
+            double                      m_ThresholdLower;
+            double                      m_ThresholdUpper;
         };
     }
 
-    template< typename TImage > 
-	ThresholdedMaskImageFilter< TImage >::ThresholdedMaskImageFilter()
+    template< typename TInputImage, typename TOutputImage >
+    ThresholdedMedianMaskImageFilter< TInputImage, TOutputImage >::ThresholdedMedianMaskImageFilter()
     {
 
     }
 
-    template< typename TImage > 
-	void ThresholdedMaskImageFilter< TImage >::PrintSelf( std::ostream& os, Indent indent ) const
+    template< typename TInputImage, typename TOutputImage >
+    void ThresholdedMedianMaskImageFilter< TInputImage, TOutputImage >::PrintSelf( std::ostream& os, Indent indent ) const
     {
         Superclass::PrintSelf( os, indent );
     }
 
-    template< typename TImage >
-	void ThresholdedMaskImageFilter< TImage >::GenerateData()
+    template< typename TInputImage, typename TOutputImage >
+    void ThresholdedMedianMaskImageFilter< TInputImage, TOutputImage >::GenerateData()
     {
-		typedef UnaryFunctorImageFilter< TImage, TImage, Functor::ThresholdedMask<typename TImage::PixelType, typename TImage::PixelType > > FunctorFilterType;
+        typedef Functor::ThresholdedMask< typename TInputImage::PixelType, typename TInputImage::PixelType > FunctorThreholdedMaskType;
+        typedef BinaryFunctorImageFilter< TInputImage, TInputImage, TOutputImage, FunctorThreholdedMaskType > FunctorFilterType;
+        typedef ThresholdedMedianImageFilter< TInputImage, TInputImage >  ThresholdedMedianImageFilterType;
+
+        // First, do thresholded median filtering on the input
+        typename ThresholdedMedianImageFilterType::Pointer pThresholdedMedianFilter( ThresholdedMedianImageFilterType::New() );
+        pThresholdedMedianFilter->SetThresholdLower( this->GetThresholdLower() );
+        pThresholdedMedianFilter->SetThresholdUpper( this->GetThresholdUpper() );
+        pThresholdedMedianFilter->SetInput( this->GetInput() );
+        pThresholdedMedianFilter->SetRadius( this->GetRadius() );
 
         typename FunctorFilterType::Pointer pFunctorFilter( FunctorFilterType::New() );
 
-        pFunctorFilter->SetInput( this->GetInput() );
+        // Set functor bounds
+        FunctorThreholdedMaskType & functorThreshold( pFunctorFilter->GetFunctor() );
+        functorThreshold.SetThresholdLower( this->GetThresholdLower() );
+        functorThreshold.SetThresholdUpper( this->GetThresholdUpper() );
+
+        pFunctorFilter->SetInput1( this->GetInput() );
+        pFunctorFilter->SetInput2( pThresholdedMedianFilter->GetOutput() );
         pFunctorFilter->Update();
 
         this->GetOutput()->Graft( pFunctorFilter->GetOutput() );
     }
 }
 
-#endif // itkThresholdedMaskImageFilter_hxx
+#endif // itkThresholdedMedianMaskImageFilter_hxx

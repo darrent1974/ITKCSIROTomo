@@ -15,15 +15,15 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#ifndef itkThresholdedMaskImageFilter_h
-#define itkThresholdedMaskImageFilter_h
+#ifndef itkThresholdedMedianMaskImageFilter_h
+#define itkThresholdedMedianMaskImageFilter_h
 
-#include "itkImageToImageFilter.h"
+#include "itkThresholdedMedianImageFilter.h"
 #include "itkProgressReporter.h"
 
 namespace itk
 {
-/** \class ThresholdedMaskImageFilter
+/** \class ThresholdedMedianMaskImageFilter
  *
  * \brief stub.
  *
@@ -32,48 +32,36 @@ namespace itk
  *
  * \ingroup ITKCSIROTomo
  */
+    template< typename TInputImage, typename TOutputImage >
+    class ITK_TEMPLATE_EXPORT ThresholdedMedianMaskImageFilter : public ThresholdedMedianImageFilter< TInputImage, TOutputImage >
+    {
+    public:
+        typedef ThresholdedMedianMaskImageFilter                            Self;
+        typedef ThresholdedMedianImageFilter< TInputImage, TOutputImage >   Superclass;
+        typedef SmartPointer< Self >                                        Pointer;
+        typedef SmartPointer< const Self >                                  ConstPointer;
 
-	template< typename TImage >
-	class ITK_TEMPLATE_EXPORT ThresholdedMaskImageFilter : public ImageToImageFilter< TImage, TImage >
-	{
-	public:
-		typedef ThresholdedMaskImageFilter                  Self;
-		typedef ImageToImageFilter< TImage, TImage >        Superclass;
-		typedef SmartPointer< Self >                        Pointer;
-		typedef SmartPointer< const Self >                  ConstPointer;
+        itkStaticConstMacro( ImageDimension, unsigned int, TInputImage::ImageDimension );
 
-		itkStaticConstMacro( ImageDimension, unsigned int, TImage::ImageDimension );
+        itkNewMacro(Self);
+        itkTypeMacro(ThresholdedMedianMaskImageFilter, ThresholdedMedianImageFilter);
 
-		itkNewMacro(Self);
-		itkTypeMacro(ThresholdedMaskImageFilter, ImageToImageFilter);
+#ifdef ITK_USE_CONCEPT_CHECKING
+        itkConceptMacro( FloatingPointPixel, ( itk::Concept::IsFloatingPoint< typename TInputImage::PixelType > ) );
+#endif
+    protected:
+        ThresholdedMedianMaskImageFilter();
+        virtual ~ThresholdedMedianMaskImageFilter() ITK_OVERRIDE {}
 
-	#ifdef ITK_USE_CONCEPT_CHECKING
-		itkConceptMacro( FloatingPointPixel, ( itk::Concept::IsFloatingPoint< typename TImage::PixelType > ) );
-	#endif
-
-		itkSetMacro( ThresholdLower, double );
-		itkGetConstMacro( ThresholdLower, double );
-		itkSetMacro( ThresholdUpper, double );
-		itkGetConstMacro( ThresholdUpper, double );
-
-	protected:
-		ThresholdedMaskImageFilter();
-		virtual ~ThresholdedMaskImageFilter() ITK_OVERRIDE {}
-
-		void PrintSelf( std::ostream& os, Indent indent ) const ITK_OVERRIDE;
-
-		void GenerateData() ITK_OVERRIDE;
-	private:
-		ITK_DISALLOW_COPY_AND_ASSIGN(ThresholdedMaskImageFilter);
-
-		double                      m_ThresholdLower;
-		double                      m_ThresholdUpper;
-
-	};
+        void PrintSelf( std::ostream& os, Indent indent ) const ITK_OVERRIDE;
+        void GenerateData() ITK_OVERRIDE;
+    private:
+        ITK_DISALLOW_COPY_AND_ASSIGN(ThresholdedMedianMaskImageFilter);
+    };
 }
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkThresholdedMaskImageFilter.hxx"
+#include "itkThresholdedMedianMaskImageFilter.hxx"
 #endif
 
-#endif // itkThresholdedMaskImageFilter_h
+#endif // itkThresholdedMedianMaskImageFilter_h

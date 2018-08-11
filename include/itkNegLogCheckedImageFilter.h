@@ -33,41 +33,42 @@ namespace itk
  * \ingroup ITKCSIROTomo
  */
 
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT NegLogCheckedImageFilter : public ImageToImageFilter< TImage, TImage >
-{
-public:
-#ifdef TEMP_REMOVED
-    using Self = NegLogCheckedImageFilter;
-    using Superclass = ImageToImageFilter< TImage, TImage >;
-    using Pointer = SmartPointer<Self>;
-    using ConstPointer = SmartPointer<const Self>;
-#else
-    typedef NegLogCheckedImageFilter                    Self;
-    typedef ImageToImageFilter< TImage, TImage >        Superclass;
-    typedef SmartPointer< Self >                        Pointer;
-    typedef SmartPointer< const Self >                  ConstPointer;
-#endif
+    template< typename TImage >
+    class ITK_TEMPLATE_EXPORT NegLogCheckedImageFilter : public ImageToImageFilter< TImage, TImage >
+    {
+    public:
+    #ifdef TEMP_REMOVED
+        using Self = NegLogCheckedImageFilter;
+        using Superclass = ImageToImageFilter< TImage, TImage >;
+        using Pointer = SmartPointer<Self>;
+        using ConstPointer = SmartPointer<const Self>;
+    #else
+        typedef NegLogCheckedImageFilter                    Self;
+        typedef ImageToImageFilter< TImage, TImage >        Superclass;
+        typedef SmartPointer< Self >                        Pointer;
+        typedef SmartPointer< const Self >                  ConstPointer;
+    #endif
 
-    itkStaticConstMacro( ImageDimension, unsigned int, TImage::ImageDimension );
+        itkStaticConstMacro( ImageDimension, unsigned int, TImage::ImageDimension );
 
-    itkNewMacro(Self);
-    itkTypeMacro(NegLogCheckedImageFilter, ImageToImageFilter);
+        itkNewMacro(Self);
+        itkTypeMacro(NegLogCheckedImageFilter, ImageToImageFilter);
 
-#ifdef ITK_USE_CONCEPT_CHECKING
-    itkConceptMacro( FloatingPointPixel, ( itk::Concept::IsFloatingPoint< typename TImage::PixelType > ) );
-#endif
+    #ifdef ITK_USE_CONCEPT_CHECKING
+        itkConceptMacro( FloatingPointPixel, ( itk::Concept::IsFloatingPoint< typename TImage::PixelType > ) );
+    #endif
 
-protected:
-    NegLogCheckedImageFilter();
-    virtual ~NegLogCheckedImageFilter() ITK_OVERRIDE {}
+    protected:
+        NegLogCheckedImageFilter();
+        virtual ~NegLogCheckedImageFilter() ITK_OVERRIDE {}
 
-    void PrintSelf( std::ostream& os, Indent indent ) const ITK_OVERRIDE;
-    virtual void GenerateData() ITK_OVERRIDE;
-private:
-    ITK_DISALLOW_COPY_AND_ASSIGN(NegLogCheckedImageFilter);
+        void PrintSelf( std::ostream& os, Indent indent ) const ITK_OVERRIDE;
 
-};
+        virtual void GenerateData() ITK_OVERRIDE;
+    private:
+        ITK_DISALLOW_COPY_AND_ASSIGN(NegLogCheckedImageFilter);
+
+    };
 }
 
 #ifndef ITK_MANUAL_INSTANTIATION
