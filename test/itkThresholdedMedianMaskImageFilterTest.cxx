@@ -16,23 +16,34 @@
  *
  *=========================================================================*/
 
-#include "itkThresholdedMaskImageFilter.h"
+#include "itkThresholdedMedianMaskImageFilter.h"
 
 #include "itkCommand.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkTestingMacros.h"
 
+using ImageType = itk::Image< float, 2 >;
+using MaskImageType = itk::Image< unsigned char, 2 >;
+using ImageFileReaderType = itk::ImageFileReader< ImageType >;
+using ImageFileWriterType = itk::ImageFileWriter< ImageType >;
+using MaskImageFileWriterType = itk::ImageFileWriter< MaskImageType >;
+using ThresholdedMedianMaskImageFilterType = itk::ThresholdedMedianMaskImageFilter< ImageType, MaskImageType >;
+
+#define THRESHOLD_LOWER 0.0
+#define THRESHOLD_UPPER 100.0
+#define FILTER_RADIUS 3
+
 namespace
 {
     class ShowProgress : public itk::Command
     {
     public:
-        itkNewMacro( ShowProgress );
+        itkNewMacro( ShowProgress )
 
         void Execute( itk::Object* caller, const itk::EventObject& event ) override
         {
-            Execute( (const itk::Object*)caller, event );
+            Execute( dynamic_cast< const itk::Object* >( caller ), event );
         }
 
         void Execute( const itk::Object* caller, const itk::EventObject& event ) override
@@ -50,45 +61,44 @@ namespace
     };
 }
 
-int itkThresholdedMaskImageFilterTest( int argc, char * argv[] )
+int itkThresholdedMedianMaskImageFilterTest( int argc, char * argv[] )
 {
-    if( argc < 1 )
+    if( argc < 3 )
     {
-        std::cerr << "Usage: " << argv[0];
-        std::cerr << std::endl;
+        std::cerr << "Missing parameters." << std::endl;
+        std::cerr << "Usage: " << argv[0] << " inputImageFile outputMaskImageFile" << std::endl;
         return EXIT_FAILURE;
     }
 
-    const unsigned int uintDimension( 2 );
-    using PixelType = float;
-    using ImageType = itk::Image< PixelType, uintDimension >;
+    // Setup reader for input file
+    ImageFileReaderType::Pointer pImageFileReader( ImageFileReaderType::New() );
+    pImageFileReader->SetFileName( argv[1] );
 
-	using FilterType = itk::ThresholdedMaskImageFilter< ImageType >;
-    FilterType::Pointer pFilter( FilterType::New() );
-
-	EXERCISE_BASIC_OBJECT_METHODS( pFilter, ThresholdedMaskImageFilter, ImageToImageFilter );
-
-    // Create input image to avoid test dependencies.S
-    ImageType::SizeType size;
-    size.Fill( 128 );
-    ImageType::Pointer pImage( ImageType::New() );
-    pImage->SetRegions( size );
-    pImage->Allocate();
-    pImage->FillBuffer( 0.0f );
+    // Create the filter
+    ThresholdedMedianMaskImageFilterType::Pointer pThresholdedMedianMaskImageFilter( ThresholdedMedianMaskImageFilterType::New() );
+    EXERCISE_BASIC_OBJECT_METHODS( pThresholdedMedianMaskImageFilter, ThresholdedMedianMaskImageFilter, ThresholdedMedianImageFilter );
 
     ShowProgress::Pointer pShowProgress( ShowProgress::New() );
-    pFilter->AddObserver( itk::ProgressEvent(), pShowProgress );
-    pFilter->SetInput( pImage );
+    pThresholdedMedianMaskImageFilter->AddObserver( itk::ProgressEvent(), pShowProgress );
+    pThresholdedMedianMaskImageFilter->SetInput( pImageFileReader->GetOutput() );
 
-    try
-    {
-        pFilter->Update();
-    }
-    catch( itk::ExceptionObject & error )
-    {
-        std::cerr << "Error: " << error << std::endl;
-        return EXIT_FAILURE;
-    }
+    pThresholdedMedianMaskImageFilter->SetThresholdLower( THRESHOLD_LOWER );
+    TEST_SET_GET_VALUE( THRESHOLD_LOWER, pThresholdedMedianMaskImageFilter->GetThresholdLower() );
+
+    pThresholdedMedianMaskImageFilter->SetThresholdUpper( THRESHOLD_UPPER );
+    TEST_SET_GET_VALUE( THRESHOLD_UPPER, pThresholdedMedianMaskImageFilter->GetThresholdUpper() );
+
+    ThresholdedMedianMaskImageFilterType::RadiusType radiusFilter;
+    radiusFilter.Fill( FILTER_RADIUS );
+    pThresholdedMedianMaskImageFilter->SetRadius( radiusFilter );
+    TEST_SET_GET_VALUE( radiusFilter, pThresholdedMedianMaskImageFilter->GetRadius() );
+
+    // Setup writer for output file
+    MaskImageFileWriterType::Pointer pMaskImageFileWriter( MaskImageFileWriterType::New() );
+    pMaskImageFileWriter->SetFileName( argv[2] );
+    pMaskImageFileWriter->SetInput( pThresholdedMedianMaskImageFilter->GetOutput() );
+    pMaskImageFileWriter->Update();
+
 
     return EXIT_SUCCESS;
 }

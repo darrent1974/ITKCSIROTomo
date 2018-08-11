@@ -16,12 +16,18 @@
  *
  *=========================================================================*/
 
-#include "itkThresholdedMedianImageFilter.h"
-
+#include "itkMaskedMedianImageFilter.h"
 #include "itkCommand.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkTestingMacros.h"
+
+using ImageType = itk::Image< float, 2 >;
+using MaskImageType = itk::Image< unsigned char, 2 >;
+using ImageFileReaderType = itk::ImageFileReader< ImageType >;
+using ImageFileWriterType = itk::ImageFileWriter< ImageType >;
+using MaskImageFileReaderType = itk::ImageFileReader< MaskImageType >;
+using MaskedMedianImageFilterType = itk::MaskedMedianImageFilter< ImageType, ImageType, MaskImageType >;
 
 namespace
 {
@@ -50,54 +56,42 @@ namespace
     };
 }
 
-int itkThresholdedMedianImageFilterTest( int argc, char * argv[] )
+int itkMaskedMedianImageFilterTest( int argc, char * argv[] )
 {
-    if( argc < 1 )
+    if( argc < 4 )
     {
-        std::cerr << "Usage: " << argv[0];
-        std::cerr << std::endl;
+        std::cerr << "Missing parameters." << std::endl;
+        std::cerr << "Usage: " << argv[0] << " inputImageFile inputMaskImageFile outputImageFile" << std::endl;
         return EXIT_FAILURE;
     }
 
-    const unsigned int uintDimension( 2 );
-    using PixelType = float;
-    using ImageType = itk::Image< PixelType, uintDimension >;
+    // Setup reader for input file
+    ImageFileReaderType::Pointer pImageFileReader( ImageFileReaderType::New() );
+    pImageFileReader->SetFileName( argv[1] );
 
-    using FilterType = itk::ThresholdedMedianImageFilter< ImageType, ImageType >;
-    FilterType::Pointer pFilter( FilterType::New() );
+    // Setup reader for input mask file
+    MaskImageFileReaderType::Pointer pMaskImageFileReader( MaskImageFileReaderType::New() );
+    pMaskImageFileReader->SetFileName( argv[2] );
+    pMaskImageFileReader->Update();
 
-    EXERCISE_BASIC_OBJECT_METHODS( pFilter, ThresholdedMedianImageFilter, BoxImageFilter );
-
-    itk::ImageFileReader< ImageType >::Pointer pImageFileReader( itk::ImageFileReader< ImageType >::New() );
-    pImageFileReader->SetFileName( "stitched.mhd" );
-    pImageFileReader->Update();
-    ImageType::Pointer pImage( pImageFileReader->GetOutput() );
+    // Create the filter
+    MaskedMedianImageFilterType::Pointer pMaskedMedianImageFilter( MaskedMedianImageFilterType::New() );
+    EXERCISE_BASIC_OBJECT_METHODS( pMaskedMedianImageFilter, MaskedMedianImageFilter, BoxImageFilter );
 
     ShowProgress::Pointer pShowProgress( ShowProgress::New() );
-    pFilter->AddObserver( itk::ProgressEvent(), pShowProgress );
-    pFilter->SetInput( pImage );
-    pFilter->SetThresholdLower( 0.5 );
-    pFilter->SetThresholdUpper( 1.5 );
+    pMaskedMedianImageFilter->AddObserver( itk::ProgressEvent(), pShowProgress );
+    pMaskedMedianImageFilter->SetInput( pImageFileReader->GetOutput() );
+    pMaskedMedianImageFilter->SetMaskImage( pMaskImageFileReader->GetOutput() );
 
-    FilterType::RadiusType radiusFilter;
-    radiusFilter.Fill( 3 );
-    pFilter->SetRadius( radiusFilter );
+    // Setup writer for output file
+    ImageFileWriterType::Pointer pImageFileWriter( ImageFileWriterType::New() );
+    pImageFileWriter->SetFileName( argv[3] );
+    pImageFileWriter->SetInput( pMaskedMedianImageFilter->GetOutput() );
+    pImageFileWriter->Update();
 
-    try
-    {
-        pFilter->Update();
+    TRY_EXPECT_NO_EXCEPTION( pImageFileWriter->Update() );
 
-        itk::ImageFileWriter< ImageType >::Pointer pImageFileWriter( itk::ImageFileWriter< ImageType >::New() );
-        pImageFileWriter->SetInput( pFilter->GetOutput() );
-        pImageFileWriter->SetFileName( "median.mhd" );
-        pImageFileWriter->Update();
-
-    }
-    catch( itk::ExceptionObject & error )
-    {
-        std::cerr << "Error: " << error << std::endl;
-        return EXIT_FAILURE;
-    }
+    std::cout << "Test finished." << std::endl;
 
     return EXIT_SUCCESS;
 }

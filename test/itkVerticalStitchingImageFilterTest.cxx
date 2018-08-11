@@ -16,24 +16,47 @@
  *
  *=========================================================================*/
 
-#include "itkStitchingImageFilter.h"
+#include "itkVerticalStitchingImageFilter.h"
 
 #include "itkCommand.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkTestingMacros.h"
 #include "itkRegionOfInterestImageFilter.h"
+#include "itkVectorImage.h"
+#include "itkComposeImageFilter.h"
+#include "itkImageDuplicator.h"
+#include "itkImageSpatialObject.h"
+#include "itkMaximumProjectionImageFilter.h"
+#include "itkMeanProjectionImageFilter.h"
+#include "itkImageScanlineIterator.h"
+#include "itkImageRegionConstIterator.h"
+#include "itkExtractImageFilter.h"
+#include "itkStatisticsImageFilter.h"
+
+using PixelType = float;
+using ImageType = itk::Image< PixelType, 2 >;
+using WeightVectorImageType = itk::VectorImage< PixelType, 2 >;
+using ImageDuplicatorType = itk::ImageDuplicator< ImageType >;
+using ComposeVectorImageType = itk::ComposeImageFilter< ImageType >;
+using ImageFileReaderType = itk::ImageFileReader< ImageType >;
+using ImageFileWriterType = itk::ImageFileWriter< ImageType >;
+using LineType = itk::Image< PixelType, 1 >;
+using MaximumProjectionType = itk::MaximumProjectionImageFilter< ImageType, LineType >;
+using MeanProjectionType = itk::MeanProjectionImageFilter< ImageType, LineType >;
+using ExtractImageFilterType = itk::ExtractImageFilter< ImageType, ImageType >;
+using StatisticsImageFilterType = itk::StatisticsImageFilter< ImageType >;
 
 namespace
 {
     class ShowProgress : public itk::Command
     {
     public:
-        itkNewMacro( ShowProgress );
+        itkNewMacro( ShowProgress )
 
         void Execute( itk::Object* caller, const itk::EventObject& event ) override
         {
-            Execute( (const itk::Object*)caller, event );
+            Execute( dynamic_cast< const itk::Object* >( caller ), event );
         }
 
         void Execute( const itk::Object* caller, const itk::EventObject& event ) override
@@ -51,7 +74,8 @@ namespace
     };
 }
 
-int itkStitchingImageFilterTest( int argc, char * argv[] )
+
+int itkVerticalStitchingImageFilterTest( int argc, char * argv[] )
 {
     if( argc < 1 )
     {
@@ -60,17 +84,40 @@ int itkStitchingImageFilterTest( int argc, char * argv[] )
         return EXIT_FAILURE;
     }
 
-    const unsigned int uintDimension( 2 );
-    using PixelType = float;
-    using ImageType = itk::Image< PixelType, uintDimension >;
-
     ImageType::SpacingType spacingImage;
-    spacingImage.Fill( 0.1f );
+    spacingImage.Fill( 0.1 );
 
-    itk::ImageFileReader< ImageType >::Pointer pImageFileReader( itk::ImageFileReader< ImageType >::New() );
-//#define FIXED_IMAGES
-#ifdef FIXED_IMAGES
-    // Create input image to avoid test dependencies.
+    ImageFileReaderType::Pointer pImageFileReader( ImageFileReaderType::New() );
+    ImageFileWriterType::Pointer pImageFileWriter( ImageFileWriterType::New() );
+
+    using FilterType = itk::VerticalStitchingImageFilter< ImageType, ImageType >;
+    FilterType::Pointer pFilter( FilterType::New() );
+
+//#define LOCAL_TEST
+#ifdef LOCAL_TEST
+    pImageFileReader->SetFileName( "/mnt/Data/development/InsightSoftwareConsortium/ITKCSIROTomo/darkcorrectedflat_0.mhd" );
+    pImageFileReader->Update();
+    ImageType::Pointer pImage1( pImageFileReader->GetOutput() );
+    pImage1->DisconnectPipeline();
+
+    ImageType::RegionType region( pImage1->GetLargestPossibleRegion() );
+    ImageType::SizeType size( region.GetSize() );
+
+    pImageFileReader->SetFileName( "/mnt/Data/development/InsightSoftwareConsortium/ITKCSIROTomo/darkcorrectedflat_1.mhd" );
+    pImageFileReader->Update();
+    ImageType::Pointer pImage2( pImageFileReader->GetOutput() );
+    pImage2->DisconnectPipeline();
+
+    pImageFileReader->SetFileName( "/mnt/Data/development/InsightSoftwareConsortium/ITKCSIROTomo/darkcorrectedflat_2.mhd" );
+    pImageFileReader->Update();
+    ImageType::Pointer pImage3( pImageFileReader->GetOutput() );
+    pImage3->DisconnectPipeline();
+
+    pImageFileReader->SetFileName( "/mnt/Data/development/InsightSoftwareConsortium/ITKCSIROTomo/darkcorrectedflat_3.mhd" );
+    pImageFileReader->Update();
+    ImageType::Pointer pImage4( pImageFileReader->GetOutput() );
+    pImage4->DisconnectPipeline();
+#else
     ImageType::SizeType size;
     size.Fill( 120 );
     ImageType::Pointer pImage1( ImageType::New() );
@@ -96,80 +143,61 @@ int itkStitchingImageFilterTest( int argc, char * argv[] )
     pImage4->SetSpacing( spacingImage );
     pImage4->Allocate();
     pImage4->FillBuffer( 50.0f );
-#else
-    pImageFileReader->SetFileName( "/mnt/Data/development/InsightSoftwareConsortium/ITKCSIROTomo/darkcorrectedflat_0.mhd" );
-    pImageFileReader->Update();
-    ImageType::Pointer pImage1( pImageFileReader->GetOutput() );
-    pImage1->DisconnectPipeline();
-
-    ImageType::SizeType size( pImage1->GetLargestPossibleRegion().GetSize() );
-
-    pImageFileReader->SetFileName( "/mnt/Data/development/InsightSoftwareConsortium/ITKCSIROTomo/darkcorrectedflat_1.mhd" );
-    pImageFileReader->Update();
-    ImageType::Pointer pImage2( pImageFileReader->GetOutput() );
-    pImage2->DisconnectPipeline();
-
-    pImageFileReader->SetFileName( "/mnt/Data/development/InsightSoftwareConsortium/ITKCSIROTomo/darkcorrectedflat_2.mhd" );
-    pImageFileReader->Update();
-    ImageType::Pointer pImage3( pImageFileReader->GetOutput() );
-    pImage3->DisconnectPipeline();
-
-    pImageFileReader->SetFileName( "/mnt/Data/development/InsightSoftwareConsortium/ITKCSIROTomo/darkcorrectedflat_3.mhd" );
-    pImageFileReader->Update();
-    ImageType::Pointer pImage4( pImageFileReader->GetOutput() );
-    pImage4->DisconnectPipeline();
 #endif
-
-    using FilterType = itk::StitchingImageFilter< ImageType >;
-    FilterType::Pointer pFilter( FilterType::New() );
 
     FilterType::SpacingType spacingShift;
     spacingShift[0] = 0.0;
 
-#ifdef FIXED_IMAGES
-    spacingShift[1] = 5;
-#else
-    spacingShift[1] = 15.0;
-#endif
-
-    EXERCISE_BASIC_OBJECT_METHODS( pFilter, StitchingImageFilter, ImageToImageFilter );
+    EXERCISE_BASIC_OBJECT_METHODS( pFilter, VerticalStitchingImageFilter, ImageToImageFilter );
 
     ShowProgress::Pointer pShowProgress( ShowProgress::New() );
+
     pFilter->AddObserver( itk::ProgressEvent(), pShowProgress );
+
     pFilter->SetInput( 0, pImage1 );
     pFilter->SetInput( 1, pImage2 );
     pFilter->SetInput( 2, pImage3 );
     pFilter->SetInput( 3, pImage4 );
-    pFilter->SetShift( spacingShift );
+
+#ifdef LOCAL_TEST
+    pFilter->SetVerticalShift( 15.7 );
+#else
+    spacingShift[1] = 5;
+    pFilter->SetVerticalShift( 5.0 );
+#endif
 
     // Trim each input image by 1.0mm on the top and bottom prior to stitching
     ImageType::PointType pointTrimMin;
     pointTrimMin[0] = 0.0;
-#ifdef FIXED_IMAGES
-    pointTrimMin[1] = 1.0;
-#else
+#ifdef LOCAL_TEST
     pointTrimMin[1] = 0.2;
+#else
+    pointTrimMin[1] = 1.0;
 #endif
     pFilter->SetTrimPointMin( pointTrimMin );
 
     ImageType::PointType pointTrimMax;
     pointTrimMax[0] = static_cast<double>( size[0] ) * spacingImage[0];
-#ifdef FIXED_IMAGES
-    pointTrimMax[1] = ( static_cast<double>( size[1] ) * spacingImage[1] ) - 1.0;
-#else
+#ifdef LOCAL_TEST
     pointTrimMax[1] = ( static_cast<double>( size[1] ) * spacingImage[1] ) - 1.1;
+#else
+    pointTrimMax[1] = ( static_cast<double>( size[1] ) * spacingImage[1] ) - 1.0;
 #endif
     pFilter->SetTrimPointMax( pointTrimMax );
 
     try
     {
-        pFilter->Update();
+        //pFilter->Update();
 
-        typedef itk::ImageFileWriter< ImageType > WriterType;
-        WriterType::Pointer pWriter( WriterType::New() );
-        pWriter->SetFileName( "stitched.mhd" );
-        pWriter->SetInput( pFilter->GetOutput() );
-        TRY_EXPECT_NO_EXCEPTION( pWriter->Update() );
+#ifdef LOCAL_TEST
+        pImageFileWriter->SetFileName( "stitched.mhd" );
+        pImageFileWriter->SetInput( pFilter->GetOutput() );
+        TRY_EXPECT_NO_EXCEPTION( pImageFileWriter->Update() );
+
+        pImageFileReader->SetFileName( "/mnt/Data/development/InsightSoftwareConsortium/ITKCSIROTomo/FFstitched.tif" );
+        pImageFileReader->Update();
+        ImageType::ConstPointer pImageStitched( pImageFileReader->GetOutput() );
+#endif
     }
     catch( itk::ExceptionObject & error )
     {

@@ -23,16 +23,25 @@
 #include "itkImageFileWriter.h"
 #include "itkTestingMacros.h"
 
+#define THRESHOLD_LOWER 0.0
+#define THRESHOLD_UPPER 100.0
+#define FILTER_RADIUS 3
+
+using ImageType = itk::Image< float, 2 >;
+using ThresholdedMedianImageFilterType = itk::ThresholdedMedianImageFilter< ImageType, ImageType >;
+using ImageFileReaderType = itk::ImageFileReader< ImageType >;
+using ImageFileWriterType = itk::ImageFileWriter< ImageType >;
+
 namespace
 {
     class ShowProgress : public itk::Command
     {
     public:
-        itkNewMacro( ShowProgress );
+        itkNewMacro( ShowProgress )
 
         void Execute( itk::Object* caller, const itk::EventObject& event ) override
         {
-            Execute( (const itk::Object*)caller, event );
+            Execute( dynamic_cast< const itk::Object* >( caller ), event );
         }
 
         void Execute( const itk::Object* caller, const itk::EventObject& event ) override
@@ -52,57 +61,45 @@ namespace
 
 int itkThresholdedMedianImageFilterTest( int argc, char * argv[] )
 {
-    if( argc < 1 )
+    if( argc < 3 )
     {
-        std::cerr << "Usage: " << argv[0];
-        std::cerr << std::endl;
+        std::cerr << "Missing parameters." << std::endl;
+        std::cerr << "Usage: " << argv[0] << " inputImageFile outputImageFile" << std::endl;
         return EXIT_FAILURE;
     }
 
-    const unsigned int uintDimension( 2 );
-    using PixelType = float;
-    using ImageType = itk::Image< PixelType, uintDimension >;
+    // Setup reader for input file
+    ImageFileReaderType::Pointer pImageFileReader( ImageFileReaderType::New() );
+    pImageFileReader->SetFileName( argv[1] );
 
-    using FilterType = itk::ThresholdedMedianImageFilter< ImageType, ImageType >;
-    FilterType::Pointer pFilter( FilterType::New() );
-
-    EXERCISE_BASIC_OBJECT_METHODS( pFilter, ThresholdedMedianImageFilter, BoxImageFilter );
-
-    // Create input image to avoid test dependencies.S
-    ImageType::SizeType size;
-    size.Fill( 128 );
-    ImageType::Pointer pImage( ImageType::New() );
-    pImage->SetRegions( size );
-    pImage->Allocate();
-    pImage->FillBuffer( 0.0f );
+    // Create the filter
+    ThresholdedMedianImageFilterType::Pointer pThresholdedMedianImageFilter( ThresholdedMedianImageFilterType::New() );
+    EXERCISE_BASIC_OBJECT_METHODS( pThresholdedMedianImageFilter, ThresholdedMedianImageFilter, BoxImageFilter );
 
     ShowProgress::Pointer pShowProgress( ShowProgress::New() );
-    pFilter->AddObserver( itk::ProgressEvent(), pShowProgress );
-    pFilter->SetInput( pImage );
-    pFilter->SetThresholdLower( 0.5 );
-    pFilter->SetThresholdUpper( 1.5 );
+    pThresholdedMedianImageFilter->AddObserver( itk::ProgressEvent(), pShowProgress );
+    pThresholdedMedianImageFilter->SetInput( pImageFileReader->GetOutput() );
 
-    FilterType::SizeType sizeFilter;
-    sizeFilter.Fill( 5 );
-    pFilter->SetRadius( sizeFilter );
+    pThresholdedMedianImageFilter->SetThresholdLower( THRESHOLD_LOWER );
+    TEST_SET_GET_VALUE( THRESHOLD_LOWER, pThresholdedMedianImageFilter->GetThresholdLower() );
 
-    try
-    {
-        pFilter->Update();
+    pThresholdedMedianImageFilter->SetThresholdUpper( THRESHOLD_UPPER );
+    TEST_SET_GET_VALUE( THRESHOLD_UPPER, pThresholdedMedianImageFilter->GetThresholdUpper() );
 
-#ifdef TEMP_REMOVED
-        itk::ImageFileWriter< ImageType >::Pointer pImageFileWriter( itk::ImageFileWriter< ImageType >::New() );
-        pImageFileWriter->SetInput( pFilter->GetOutput() );
-        pImageFileWriter->SetFileName( "thresholdedmedian.mhd" );
-        pImageFileWriter->Update();
-#endif
+    ThresholdedMedianImageFilterType::RadiusType radiusFilter;
+    radiusFilter.Fill( FILTER_RADIUS );
+    pThresholdedMedianImageFilter->SetRadius( radiusFilter );
+    TEST_SET_GET_VALUE( radiusFilter, pThresholdedMedianImageFilter->GetRadius() );
 
-    }
-    catch( itk::ExceptionObject & error )
-    {
-        std::cerr << "Error: " << error << std::endl;
-        return EXIT_FAILURE;
-    }
+    // Setup writer for output file
+    ImageFileWriterType::Pointer pImageFileWriter( ImageFileWriterType::New() );
+    pImageFileWriter->SetFileName( argv[2] );
+    pImageFileWriter->SetInput( pThresholdedMedianImageFilter->GetOutput() );
+    pImageFileWriter->Update();
+
+    TRY_EXPECT_NO_EXCEPTION( pImageFileWriter->Update() );
+
+    std::cout << "Test finished." << std::endl;
 
     return EXIT_SUCCESS;
 }
