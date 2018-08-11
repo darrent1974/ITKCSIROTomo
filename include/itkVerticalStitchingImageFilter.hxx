@@ -15,37 +15,46 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#ifndef itkStitchingImageFilter_hxx
-#define itkStitchingImageFilter_hxx
+#ifndef itkVerticalStitchingImageFilter_hxx
+#define itkVerticalStitchingImageFilter_hxx
 
-#include "itkStitchingImageFilter.h"
+#include "itkVerticalStitchingImageFilter.h"
 #include "itkImageAlgorithm.h"
+#include "itkVectorIndexSelectionCastImageFilter.h"
+
+#include "itkImageFileWriter.h"
+#include <limits>
+#include <strstream>
+#include "itkImageScanlineConstIterator.h"
+#include "itkExtractImageFilter.h"
+#include "itkStatisticsImageFilter.h"
+#include "itkBoxMeanImageFilter.h"
+#include "itkBoxSigmaImageFilter.h"
+#include "itkDivideImageFilter.h"
 
 namespace itk
 {
-    template< typename TImage >
-    StitchingImageFilter< TImage >::StitchingImageFilter()
+	template< typename TImage >
+	VerticalStitchingImageFilter< TImage >::VerticalStitchingImageFilter()
     {
-        m_Shift.Fill( 0.0 );
+		m_VerticalShift.Fill( 0.0 );
         m_TrimPointMin.Fill( 0.0 );
         m_TrimPointMax.Fill( 0.0 );
-
-        // Create group to store image spatial objects
-        m_GroupImageSpatialObjects = GroupSpatialObjectType::New();
     }
 
-    template< typename TImage >
-    void StitchingImageFilter< TImage >::PrintSelf( std::ostream& os, Indent indent ) const
+	template< typename TImage >
+	void VerticalStitchingImageFilter< TImage >::PrintSelf( std::ostream& os, Indent indent ) const
     {
         Superclass::PrintSelf( os, indent );
     }
 
-    template< typename TImage >
-    typename TImage::Pointer StitchingImageFilter< TImage >::CreateRegionCopy( typename TImage::ConstPointer pImage, RegionType region )
+
+	template< typename TImage >
+	typename TImage::Pointer VerticalStitchingImageFilter< TImage >::CreateRegionCopy( typename TImage::ConstPointer pImage, typename TImage::RegionType region )
     {
         // Create a new image with zero-based indexes containing
         // a copy of the contents of the passed image/region
-        RegionType regionCopy( region.GetSize() );
+        OutputRegionType regionCopy( region.GetSize() );
         typename TImage::Pointer pImageCopy( TImage::New() );
         pImageCopy->SetRegions( regionCopy );
         pImageCopy->SetSpacing( pImage->GetSpacing() );
@@ -57,16 +66,16 @@ namespace itk
         return pImageCopy;
     }
 
-    template< typename TImage >
-    typename TImage::RegionType StitchingImageFilter< TImage >::ComputeTrimRegion( typename TImage::ConstPointer pImage )
+	template< typename TImage >
+	typename TImage::RegionType VerticalStitchingImageFilter< TImage >::ComputeTrimRegion( typename TImage::ConstPointer pImage )
     {
         // Special case, no trim points set (zero)
         if( m_TrimPointMax.EuclideanDistanceTo( m_TrimPointMin ) == 0.0 )
             return pImage->GetLargestPossibleRegion();
 
-        RegionType regionTrim( pImage->GetLargestPossibleRegion() );
-        IndexType indexBoundMin( regionTrim.GetIndex() );
-        IndexType indexBoundMax;
+        OutputRegionType regionTrim( pImage->GetLargestPossibleRegion() );
+        OutputIndexType indexBoundMin( regionTrim.GetIndex() );
+        OutputIndexType indexBoundMax;
 
         /*if( !*/pImage->TransformPhysicalPointToIndex( m_TrimPointMin, indexBoundMin );// )
         //    itkExceptionMacro ("ComputeTrimRegion min index transform failed");
@@ -82,52 +91,45 @@ namespace itk
         return regionTrim;
     }
 
-    template< typename TImage >
-    void StitchingImageFilter< TImage >::GenerateData()
+	template< typename TImage >
+	void VerticalStitchingImageFilter< TImage >::GenerateData()
     {
         // Get a reference to the current output image
         typename TImage::Pointer pOutput( this->GetOutput() );
-        typename TImage::ConstPointer pInput( this->GetInput() );
+		typename TImage::ConstPointer pInputImage( this->GetInput() );
 
-        if( !pInput || !pOutput )
+        if( !pInputImage || !pOutput )
           return;
 
         if( this->GetNumberOfInputs() == 1 )
         {
-            this->GraftOutput( CreateRegionCopy( pInput, ComputeTrimRegion( pInput ) ) );
+            this->GraftOutput( CreateRegionCopy( pInputImage, ComputeTrimRegion( pInputImage ) ) );
             return;
         }
 
-        RegionType regionOutput( pOutput->GetLargestPossibleRegion() );
+        OutputRegionType regionOutput( pOutput->GetLargestPossibleRegion() );
 
-        typename SpatialObjectToBlendedImageFilterType::Pointer pSpatialObjectToBlendedImage( SpatialObjectToBlendedImageFilterType::New() );
-
-        pSpatialObjectToBlendedImage->SetInput( m_GroupImageSpatialObjects );
-        pSpatialObjectToBlendedImage->SetSize( regionOutput.GetSize() );
-        pSpatialObjectToBlendedImage->SetSpacing( pInput->GetSpacing() );
-        pSpatialObjectToBlendedImage->Update();
-
-        this->GraftOutput( pSpatialObjectToBlendedImage->GetOutput() );
+		//this->GraftOutput( pSpatialObjectToBlendedImage->GetOutput() );
     }
 
-    template< typename TImage >
-    void StitchingImageFilter< TImage >::GenerateInputRequestedRegion()
+	template< typename TImage >
+	void VerticalStitchingImageFilter< TImage >::GenerateInputRequestedRegion()
     {
         // Get pointer to the input
-        typename TImage::Pointer pInput(  const_cast< TImage * >( this->GetInput() ) );
-        const RegionType & regionLargestInput( pInput->GetLargestPossibleRegion() );
-        pInput->SetRequestedRegion( regionLargestInput );
+		//typename TWeightingVectorImage::Pointer pInput(  const_cast< TWeightingVectorImage * >( this->GetInput() ) );
+		//const InputRegionType & regionLargestInput( pInput->GetLargestPossibleRegion() );
+		//pInput->SetRequestedRegion( regionLargestInput );
     }
 
-    template< typename TImage >
-    void StitchingImageFilter< TImage >::GenerateOutputInformation()
+	template< typename TImage >
+	void VerticalStitchingImageFilter< TImage >::GenerateOutputInformation()
     {
         Superclass::GenerateOutputInformation();
 
-        typename TImage::ConstPointer pInput( this->GetInput() );
+		typename TImage::ConstPointer pInputImage( this->GetInput() );
         typename TImage::Pointer pOutput( this->GetOutput() );
 
-        if( !pInput || !pOutput )
+        if( !pInputImage || !pOutput )
           return;
 
         int intNumInputs( this->GetNumberOfInputs() );
@@ -135,19 +137,21 @@ namespace itk
         if( intNumInputs == 1 )
         {
             // Set the output size to the trimmed input size
-            pOutput->SetLargestPossibleRegion( ComputeTrimRegion( pInput ) );
+            pOutput->SetLargestPossibleRegion( ComputeTrimRegion( pInputImage ) );
             return;
         }
 
+#ifdef TEMP_REMOVED
+
         // Initialise output region
-        RegionType regionOutput( pInput->GetRequestedRegion() );
+        InputRegionType regionOutput( pInputImage->GetRequestedRegion() );
 
         // Initialize output size to be updated
-        SizeType sizeOutput( regionOutput.GetSize() );
+        InputSizeType sizeOutput( regionOutput.GetSize() );
 
         // Set the spacing on the spatial object group based on the spacing of
         // the first image (assuming spacing is consistant over all images)
-        typename GroupSpatialObjectType::VectorType vectorSpacing( pInput->GetSpacing() );
+        typename GroupSpatialObjectType::VectorType vectorSpacing( pInputImage->GetSpacing() );
         m_GroupImageSpatialObjects->SetSpacing( &vectorSpacing[0] );
 
         typename GroupSpatialObjectType::VectorType vectorTrimTop;
@@ -168,22 +172,48 @@ namespace itk
         typename CheckedImageSpatialObjectType::VectorType vectorShift;
         vectorShift.Fill( 0 );
 
+        typedef ImageFileWriter< TImage > ImageFileWriterType;
+        typename ImageFileWriterType::Pointer pImageFileWriter( ImageFileWriterType::New() );
+
         // Iterate through each input
         for( int intInputIdx = 0; intInputIdx < intNumInputs; intInputIdx++ )
         {
-            typename TImage::ConstPointer pInputN( this->GetInput( intInputIdx ) );
+            std::ostringstream ss;
 
-            // Create new spatial object
+            typename TImage::ConstPointer pInputImageN( this->GetScalarInput( intInputIdx, 0 ) );
+            typename TImage::ConstPointer pInputWeightingImageN( this->GetScalarInput( intInputIdx, 1 ) );
+
+            InputRegionType regionTrim( ComputeTrimRegion( pInputImageN ) );
+
+            // Create new image spatial objects for the image and weighting image
             typename CheckedImageSpatialObjectType::Pointer pImageSpatialObject( CheckedImageSpatialObjectType::New() );
+            pImageSpatialObject->SetImage( CreateRegionCopy( pInputImageN, regionTrim ) );
 
-            pImageSpatialObject->SetImage( CreateRegionCopy( pInputN, ComputeTrimRegion( pInputN ) ) );
+            pImageFileWriter->SetInput( pImageSpatialObject->GetImage() );
+
+#ifdef TEMP_REMOVED
+            ss << "trimmed_" << intInputIdx << ".mhd";
+            pImageFileWriter->SetFileName( ss.str() );
+            pImageFileWriter->Update();
+
+            std::string strSuffix( std::to_string( intInputIdx ) );
+            createMeanSigmaSNRImages( pImageSpatialObject->GetImage(), 3, strSuffix );
+
+            //computeMaxLineSNR( pImageSpatialObject->GetImage() );
+#endif
+
+            typename CheckedImageSpatialObjectType::Pointer pWeightingImageSpatialObject( CheckedImageSpatialObjectType::New() );
+            pWeightingImageSpatialObject->SetImage( CreateRegionCopy( pInputWeightingImageN, regionTrim ) );
 
             // Shift the image relative to the group
             pImageSpatialObject->GetObjectToParentTransform()->SetOffset( vectorShift );
             pImageSpatialObject->ComputeObjectToWorldTransform();
+            pWeightingImageSpatialObject->GetObjectToParentTransform()->SetOffset( vectorShift );
+            pWeightingImageSpatialObject->ComputeObjectToWorldTransform();
 
             // Add it to the group
             m_GroupImageSpatialObjects->AddSpatialObject( pImageSpatialObject );
+            m_GroupWeightImageSpatialObjects->AddSpatialObject( pWeightingImageSpatialObject );
 
             // Increment the shift for the next image
             vectorShift += m_Shift;
@@ -191,6 +221,7 @@ namespace itk
 
         // Compute the bounding-box of all image objects
         m_GroupImageSpatialObjects->ComputeBoundingBox();
+        m_GroupWeightImageSpatialObjects->ComputeBoundingBox();
 
         typename GroupSpatialObjectType::BoundingBoxType::Pointer pBoundingBox( m_GroupImageSpatialObjects->GetBoundingBox() );
         typename GroupSpatialObjectType::BoundingBoxType::BoundsArrayType bounds( pBoundingBox->GetBounds() );
@@ -207,6 +238,7 @@ namespace itk
         // Set the output largest possible region to the total size of the stitched image
         pOutput->SetLargestPossibleRegion( regionOutput );
     }
+#endif
 }
 
-#endif // itkStitchingImageFilter_hxx
+#endif // itkVerticalStitchingImageFilter_hxx
