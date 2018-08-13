@@ -2,8 +2,11 @@ itk_module_test()
 
 set(CSIROTomoTests
   itkNegLogCheckedImageFilterTest.cxx
+  itkMaskedMedianImageFilterTest.cxx
   itkThresholdedMedianImageFilterTest.cxx
-#  itkStitchingImageFilterTest.cxx
+  itkThresholdedMedianMaskImageFilterTest.cxx
+  itkVerticalStitchingImageFilterTest.cxx
+  IMBLPreProcWorkflowTest.cxx
 )
 
 message( STATUS "test libs: " ${CSIROTomo-Test_LIBRARIES} )
@@ -13,12 +16,28 @@ CreateTestDriver(CSIROTomo "${CSIROTomo-Test_LIBRARIES}" "${CSIROTomoTests}")
 itk_add_test(NAME itkNegLogCheckedImageFilterTest
 	COMMAND CSIROTomoTestDriver itkNegLogCheckedImageFilterTest)
 
-itk_add_test(NAME itkThresholdedMedianImageFilterTest
-	COMMAND CSIROTomoTestDriver itkThresholdedMedianImageFilterTest)
+#itk_add_test(NAME itkMaskedMedianImageFilterTest
+#	COMMAND CSIROTomoTestDriver itkMaskedMedianImageFilterTest)
 
-#itk_add_test(NAME itkSpatialObjectToBlendedImageFilterTest
-#	COMMAND CSIROTomoTestDriver itkSpatialObjectToBlendedImageFilterTest)
+#itk_add_test(NAME itkThresholdedMedianImageFilterTest
+#	COMMAND CSIROTomoTestDriver
+#	--compare DATA{Baseline/resultThresholdedMedianImageFilterTest.tif}
+#		${ITK_TEST_OUTPUT_DIR}/resultThresholdedMedianImageFilterTest.tif
+#	itkThresholdedMedianImageFilterTest
+#	DATA{Input/inputThresholdedMedianImageFilterTest.tif}
+#	${ITK_TEST_OUTPUT_DIR}/resultThresholdedMedianImageFilterTest.tif)
 
-#itk_add_test(NAME itkStichingImageFilterTest
-#	COMMAND CSIROTomoTestDriver itkStichingImageFilterTest)
+itk_add_test(NAME itkThresholdedMedianMaskImageFilterTest
+	COMMAND CSIROTomoTestDriver
+#	--compare DATA{Baseline/resultThresholdedMedianMaskImageFilterTest.tif}
+#		${ITK_TEST_OUTPUT_DIR}/resultThresholdedMedianMaskImageFilterTest.tif
+	itkThresholdedMedianMaskImageFilterTest
+	DATA{Input/inputThresholdedMedianImageFilterTest.tif}
+	${ITK_TEST_OUTPUT_DIR}/resultThresholdedMedianMaskImageFilterTest.tif)
+
+#itk_add_test(NAME itkVerticalStitchingImageFilterTest
+#	COMMAND CSIROTomoTestDriver itkVerticalStitchingImageFilterTest)
+
+#itk_add_test(NAME IMBLPreProcWorkflowTest
+#	COMMAND CSIROTomoTestDriver IMBLPreProcWorkflowTest)
 
