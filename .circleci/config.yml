@@ -26,7 +26,7 @@ jobs:
             set(CTEST_BUILD_FLAGS: "-j5")
             set(CTEST_SOURCE_DIRECTORY /ITKCSIROTomo)
             set(CTEST_BINARY_DIRECTORY /ITKCSIROTomo-build)
-			set(ExternalData_URL_TEMPLATES "https://midas3.kitware.com/midas/folder/14473/%(algo)/%(hash)")
+            set(ExternalData_URL_TEMPLATES "https://midas3.kitware.com/midas/folder/14473/%(algo)/%(hash)")
             set(dashboard_model Experimental)
             set(dashboard_no_clean 1)
             set(dashboard_cache "
