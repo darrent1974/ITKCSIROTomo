@@ -29,6 +29,8 @@ using ImageFileWriterType = itk::ImageFileWriter< ImageType >;
 using MaskImageFileReaderType = itk::ImageFileReader< MaskImageType >;
 using MaskedMedianImageFilterType = itk::MaskedMedianImageFilter< ImageType, ImageType, MaskImageType >;
 
+#define FILTER_RADIUS 2
+
 namespace
 {
     class ShowProgress : public itk::Command
@@ -77,6 +79,11 @@ int itkMaskedMedianImageFilterTest( int argc, char * argv[] )
     // Create the filter
     MaskedMedianImageFilterType::Pointer pMaskedMedianImageFilter( MaskedMedianImageFilterType::New() );
     EXERCISE_BASIC_OBJECT_METHODS( pMaskedMedianImageFilter, MaskedMedianImageFilter, BoxImageFilter );
+
+    MaskedMedianImageFilterType::RadiusType radiusFilter;
+    radiusFilter.Fill( FILTER_RADIUS );
+    pMaskedMedianImageFilter->SetRadius( radiusFilter );
+    TEST_SET_GET_VALUE( radiusFilter, pMaskedMedianImageFilter->GetRadius() );
 
     ShowProgress::Pointer pShowProgress( ShowProgress::New() );
     pMaskedMedianImageFilter->AddObserver( itk::ProgressEvent(), pShowProgress );

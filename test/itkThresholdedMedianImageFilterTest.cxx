@@ -25,7 +25,7 @@
 
 #define THRESHOLD_LOWER 0.0
 #define THRESHOLD_UPPER 100.0
-#define FILTER_RADIUS 3
+#define FILTER_RADIUS 2
 
 using ImageType = itk::Image< float, 2 >;
 using ThresholdedMedianImageFilterType = itk::ThresholdedMedianImageFilter< ImageType, ImageType >;

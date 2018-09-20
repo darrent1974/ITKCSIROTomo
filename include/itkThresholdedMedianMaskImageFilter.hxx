@@ -56,7 +56,7 @@ namespace itk
 
             inline PixelTypeOutput operator()( const TPixelTypeInput & A, const TPixelTypeInput & B ) const
             {
-                return ( A < m_ThresholdLower * B || A > m_ThresholdUpper * B ) ? itk::NumericTraits<PixelTypeOutput>::OneValue() : itk::NumericTraits<PixelTypeOutput>::ZeroValue();
+                return ( A < m_ThresholdLower * B || A > m_ThresholdUpper * B ? itk::NumericTraits<PixelTypeOutput>::OneValue() : itk::NumericTraits<PixelTypeOutput>::ZeroValue() );
             }
         private:
             double                      m_ThresholdLower;

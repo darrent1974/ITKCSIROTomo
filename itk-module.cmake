@@ -5,14 +5,19 @@ file(READ "${MY_CURRENT_DIR}/README.rst" DOCUMENTATION)
 
 itk_module(ITKCSIROTomo
   ENABLE_SHARED
+  PRIVATE_DEPENDS
+	ITKImageStatistics
   DEPENDS 
     ITKCommon
 	ITKSmoothing
 	ITKSpatialObjects
 	ITKIOImageBase
+	ITKImageIntensity
   TEST_DEPENDS
 	ITKImageGrid
 	ITKTestKernel
+	ITKImageCompose
+	ITKImageStatistics
   DESCRIPTION
     "${DOCUMENTATION}"
   EXCLUDE_FROM_DEFAULT
