@@ -1,4 +1,4 @@
-itk_wrap_class("itk::MaskedMedianImageFilter" POINTER_WITH_SUPERCLASS)
+itk_wrap_class("itk::MaskedMedianImageFilter" POINTER)
 	if(ITK_WRAP_float AND ITK_WRAP_float AND ITK_WRAP_unsigned_char)
 	  itk_wrap_image_filter_types(F F UC 2+)
 	endif(ITK_WRAP_float AND ITK_WRAP_float AND ITK_WRAP_unsigned_char)
