@@ -53,7 +53,8 @@ namespace itk
         typedef SmartPointer< Self >                                    Pointer;
         typedef SmartPointer< const Self >                              ConstPointer;
 
-        typedef SmartPointer< const MaskImageType >                     MaskImageConstPointer;
+        typedef typename MaskImageType::ConstPointer                    MaskImageConstPointer;
+        typedef typename MaskImageType::Pointer                         MaskImagePointer;
 
 
         itkNewMacro(Self)
@@ -81,8 +82,10 @@ namespace itk
       // End concept checking
     #endif
 
-      itkSetMacro( MaskImage, MaskImageConstPointer )
-      itkGetConstMacro( MaskImage, MaskImageConstPointer )
+      //itkSetMacro( MaskImage, MaskImageConstPointer )
+      //itkGetConstMacro( MaskImage, MaskImageConstPointer )
+      itkSetMacro( MaskImage, MaskImagePointer )
+      itkGetMacro( MaskImage, MaskImagePointer )
 
     protected:
         MaskedMedianImageFilter();
@@ -104,7 +107,8 @@ namespace itk
     private:
         ITK_DISALLOW_COPY_AND_ASSIGN(MaskedMedianImageFilter);
 
-        MaskImageConstPointer m_MaskImage;
+        //MaskImageConstPointer m_MaskImage;
+        MaskImagePointer m_MaskImage;
     };
 }
 
