@@ -53,7 +53,7 @@ namespace itk
         typedef SmartPointer< Self >                                    Pointer;
         typedef SmartPointer< const Self >                              ConstPointer;
 
-        typedef typename MaskImageType::ConstPointer                    MaskImageConstPointer;
+        typedef SmartPointer< const MaskImageType >                     MaskImageConstPointer;
 
 
         itkNewMacro(Self)
