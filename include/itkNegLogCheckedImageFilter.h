@@ -37,22 +37,15 @@ namespace itk
     class ITK_TEMPLATE_EXPORT NegLogCheckedImageFilter : public ImageToImageFilter< TImage, TImage >
     {
     public:
-    #ifdef TEMP_REMOVED
-        using Self = NegLogCheckedImageFilter;
-        using Superclass = ImageToImageFilter< TImage, TImage >;
-        using Pointer = SmartPointer<Self>;
-        using ConstPointer = SmartPointer<const Self>;
-    #else
         typedef NegLogCheckedImageFilter                    Self;
         typedef ImageToImageFilter< TImage, TImage >        Superclass;
         typedef SmartPointer< Self >                        Pointer;
         typedef SmartPointer< const Self >                  ConstPointer;
-    #endif
 
         itkStaticConstMacro( ImageDimension, unsigned int, TImage::ImageDimension );
 
-        itkNewMacro(Self);
-        itkTypeMacro(NegLogCheckedImageFilter, ImageToImageFilter);
+        itkNewMacro(Self)
+        itkTypeMacro(NegLogCheckedImageFilter, ImageToImageFilter)
 
     #ifdef ITK_USE_CONCEPT_CHECKING
         itkConceptMacro( FloatingPointPixel, ( itk::Concept::IsFloatingPoint< typename TImage::PixelType > ) );

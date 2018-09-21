@@ -43,12 +43,8 @@ namespace itk
 
         itkStaticConstMacro( ImageDimension, unsigned int, TInputImage::ImageDimension );
 
-        itkNewMacro(Self);
-        itkTypeMacro(ThresholdedMedianMaskImageFilter, ThresholdedMedianImageFilter);
-
-#ifdef ITK_USE_CONCEPT_CHECKING
-        itkConceptMacro( FloatingPointPixel, ( itk::Concept::IsFloatingPoint< typename TInputImage::PixelType > ) );
-#endif
+        itkNewMacro(Self)
+        itkTypeMacro(ThresholdedMedianMaskImageFilter, ThresholdedMedianImageFilter)
     protected:
         ThresholdedMedianMaskImageFilter();
         virtual ~ThresholdedMedianMaskImageFilter() ITK_OVERRIDE {}

@@ -46,8 +46,8 @@ namespace itk
         itkStaticConstMacro( ImageDimension, unsigned int, TImage::ImageDimension );
         itkStaticConstMacro( WeightingImageDimension, unsigned int, TWeighting::ImageDimension );
 
-        itkNewMacro(Self);
-        itkTypeMacro(VerticalStitchingImageFilter, ImageToImageFilter);
+        itkNewMacro(Self)
+        itkTypeMacro(VerticalStitchingImageFilter, ImageToImageFilter)
 
         /** Image related typedefs. */
         typedef typename TImage::RegionType                         RegionType;
@@ -62,35 +62,31 @@ namespace itk
         typedef itk::VectorImage< PixelType, WeightingImageDimension >      WeightingImageType;
         typedef typename WeightingImageType::Pointer                        WeightingImageTypePointer;
 
-    #ifdef ITK_USE_CONCEPT_CHECKING
-        itkConceptMacro( FloatingPointPixel, ( itk::Concept::IsFloatingPoint< typename TImage::PixelType > ) );
-    #endif
-
-        itkSetMacro( ComputeWeighting, bool );
-        itkGetConstMacro( ComputeWeighting, bool );
+        itkSetMacro( ComputeWeighting, bool )
+        itkGetConstMacro( ComputeWeighting, bool )
         virtual void ComputeWeightingOn() { m_ComputeWeighting = true; }
         virtual void ComputeWeightingOff() { m_ComputeWeighting = false; }
 
-        itkSetMacro( Rescale, bool );
-        itkGetConstMacro( Rescale, bool );
+        itkSetMacro( Rescale, bool )
+        itkGetConstMacro( Rescale, bool )
         virtual void RescaleOn() { m_Rescale = true; }
         virtual void RescaleOff() { m_Rescale = false; }
 
         // Shift in physical coordinates
-        itkSetMacro( VerticalShift, double );
-        itkGetConstMacro( VerticalShift, double );
+        itkSetMacro( VerticalShift, double )
+        itkGetConstMacro( VerticalShift, double )
 
         // Trim amounts in physical coordinates
-        itkSetMacro( TrimPointMin, PointType );
-        itkGetConstMacro( TrimPointMin, PointType );
-        itkSetMacro( TrimPointMax, PointType );
-        itkGetConstMacro( TrimPointMax, PointType );
+        itkSetMacro( TrimPointMin, PointType )
+        itkGetConstMacro( TrimPointMin, PointType )
+        itkSetMacro( TrimPointMax, PointType )
+        itkGetConstMacro( TrimPointMax, PointType )
 
         // Weighting vector images
-        itkSetMacro( WeightingAlpha, WeightingImageTypePointer );
-        itkGetConstMacro( WeightingAlpha, WeightingImageTypePointer );
-        itkSetMacro( WeightingBeta, WeightingImageTypePointer );
-        itkGetConstMacro( WeightingBeta, WeightingImageTypePointer );
+        itkSetMacro( WeightingAlpha, WeightingImageTypePointer )
+        itkGetConstMacro( WeightingAlpha, WeightingImageTypePointer )
+        itkSetMacro( WeightingBeta, WeightingImageTypePointer )
+        itkGetConstMacro( WeightingBeta, WeightingImageTypePointer )
 
     protected:
         VerticalStitchingImageFilter();

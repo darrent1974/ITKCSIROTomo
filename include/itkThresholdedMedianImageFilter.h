@@ -47,21 +47,13 @@ namespace itk
         typedef TInputImage  InputImageType;
         typedef TOutputImage OutputImageType;
 
-    #ifdef TEMP_REMOVED
-        using Self = NegLogCheckedImageFilter;
-        using Superclass = ImageToImageFilter< TImage, TImage >;
-        using Pointer = SmartPointer<Self>;
-        using ConstPointer = SmartPointer<const Self>;
-    #else
         typedef ThresholdedMedianImageFilter                            Self;
         typedef BoxImageFilter< InputImageType, OutputImageType >       Superclass;
         typedef SmartPointer< Self >                                    Pointer;
         typedef SmartPointer< const Self >                              ConstPointer;
-    #endif
 
-
-        itkNewMacro(Self);
-        itkTypeMacro(ThresholdedMedianImageFilter, BoxImageFilter);
+        itkNewMacro(Self)
+        itkTypeMacro(ThresholdedMedianImageFilter, BoxImageFilter)
 
         /** Image related typedefs. */
         typedef typename InputImageType::PixelType  InputPixelType;
@@ -72,7 +64,7 @@ namespace itk
 
         typedef typename InputImageType::SizeType InputSizeType;
 
-    #ifdef ITK_USE_CONCEPT_CHECKING
+#ifdef ITK_USE_CONCEPT_CHECKING
       // Begin concept checking
       itkConceptMacro( SameDimensionCheck,
                        ( Concept::SameDimension< InputImageDimension, OutputImageDimension > ) );
@@ -81,14 +73,14 @@ namespace itk
       itkConceptMacro( InputLessThanComparableCheck,
                        ( Concept::LessThanComparable< InputPixelType > ) );
       // End concept checking
-    #endif
+ #endif
 
-      itkSetMacro( ThresholdLower, double );
-      itkGetConstMacro( ThresholdLower, double );
-      itkSetMacro( ThresholdUpper, double );
-      itkGetConstMacro( ThresholdUpper, double );
-      itkSetMacro( Iterations, unsigned int );
-      itkGetConstMacro( Iterations, unsigned int );
+      itkSetMacro( ThresholdLower, double )
+      itkGetConstMacro( ThresholdLower, double )
+      itkSetMacro( ThresholdUpper, double )
+      itkGetConstMacro( ThresholdUpper, double )
+      itkSetMacro( Iterations, unsigned int )
+      itkGetConstMacro( Iterations, unsigned int )
 
     protected:
         ThresholdedMedianImageFilter();

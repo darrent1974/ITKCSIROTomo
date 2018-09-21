@@ -1,5 +1,3 @@
 itk_wrap_class("itk::ThresholdedMedianMaskImageFilter" POINTER)
-	if(ITK_WRAP_float AND ITK_WRAP_unsigned_char)
-	  itk_wrap_image_filter_types(F UC 2+)
-	endif(ITK_WRAP_float AND ITK_WRAP_unsigned_char)
+	itk_wrap_image_filter("${WRAP_ITK_SCALAR}" 2 2+)
 itk_end_wrap_class()

@@ -56,8 +56,8 @@ namespace itk
         typedef typename MaskImageType::ConstPointer                    MaskImageConstPointer;
 
 
-        itkNewMacro(Self);
-        itkTypeMacro(MaskedMedianImageFilter, BoxImageFilter);
+        itkNewMacro(Self)
+        itkTypeMacro(MaskedMedianImageFilter, BoxImageFilter)
 
         /** Image related typedefs. */
         typedef typename InputImageType::PixelType                      InputPixelType;
@@ -81,8 +81,8 @@ namespace itk
       // End concept checking
     #endif
 
-      itkSetMacro( MaskImage, MaskImageConstPointer );
-      itkGetConstMacro( MaskImage, MaskImageConstPointer );
+      itkSetMacro( MaskImage, MaskImageConstPointer )
+      itkGetConstMacro( MaskImage, MaskImageConstPointer )
 
     protected:
         MaskedMedianImageFilter();
