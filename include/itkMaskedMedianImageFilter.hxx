@@ -38,6 +38,8 @@ namespace itk
     template< typename TInputImage, typename TOutputImage, typename TMaskImage >
     MaskedMedianImageFilter< TInputImage, TOutputImage, TMaskImage >::MaskedMedianImageFilter()
     {
+        this->AddRequiredInputName("MaskImage");
+
         // Set default filter radius
         typename TOutputImage::SizeType sizeRadius;
         sizeRadius.Fill( DEFAULT_FILTER_RADIUS );

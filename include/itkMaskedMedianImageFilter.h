@@ -42,6 +42,8 @@ namespace itk
                             TInputImage::ImageDimension);
         itkStaticConstMacro(OutputImageDimension, unsigned int,
                             TOutputImage::ImageDimension);
+        itkStaticConstMacro(MaskImageDimension, unsigned int,
+                            TMaskImage::ImageDimension);
 
         /** Convenient typedefs for simplifying declarations. */
         typedef TInputImage                                             InputImageType;
@@ -82,10 +84,8 @@ namespace itk
       // End concept checking
     #endif
 
-      //itkSetMacro( MaskImage, MaskImageConstPointer )
-      //itkGetConstMacro( MaskImage, MaskImageConstPointer )
-      itkSetMacro( MaskImage, MaskImagePointer )
-      itkGetMacro( MaskImage, MaskImagePointer )
+      itkSetInputMacro(MaskImage, MaskImageType);
+      itkGetInputMacro(MaskImage, MaskImageType);
 
     protected:
         MaskedMedianImageFilter();
@@ -106,9 +106,6 @@ namespace itk
 
     private:
         ITK_DISALLOW_COPY_AND_ASSIGN(MaskedMedianImageFilter);
-
-        //MaskImageConstPointer m_MaskImage;
-        MaskImagePointer m_MaskImage;
     };
 }
 
