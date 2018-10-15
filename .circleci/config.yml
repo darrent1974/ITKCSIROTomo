@@ -50,8 +50,8 @@ jobs:
       - run:
           name: Fetch build script
           command: |
-            curl -L https://raw.githubusercontent.com/InsightSoftwareConsortium/ITKPythonPackage/release-4.13/requirements-dev.txt -O
-            curl -L https://raw.githubusercontent.com/InsightSoftwareConsortium/ITKPythonPackage/release-4.13/scripts/dockcross-manylinux-download-cache-and-build-module-wheels.sh -O
+            curl -L https://raw.githubusercontent.com/InsightSoftwareConsortium/ITKPythonPackage/v4.13.1.post1/requirements-dev.txt -O
+            curl -L https://raw.githubusercontent.com/InsightSoftwareConsortium/ITKPythonPackage/v4.13.1.post1/scripts/dockcross-manylinux-download-cache-and-build-module-wheels.sh -O
             chmod u+x dockcross-manylinux-download-cache-and-build-module-wheels.sh
       - run:
           name: Build Python packages
@@ -67,5 +67,5 @@ workflows:
     version: 2
     build-test-package:
       jobs:
-#        - build-and-test
+        - build-and-test
         - package
